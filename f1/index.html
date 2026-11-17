@@ -33,16 +33,16 @@
   .next { width: 430px; margin-right: 12px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
   .rname { font-size: 30px; font-weight: 800; line-height: 1.1; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .circ { font-size: 15px; color: #a7adb5; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cd { margin-top: 12px; }
+  .cd { margin-top: 22px; }
   .cd .b { -webkit-flex: 1; flex: 1; background: #101216; border-radius: 12px; text-align: center; padding: 8px 0 6px; margin-right: 8px; }
   .cd .b:last-child { margin-right: 0; }
   .cd .n { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
   .cd .u { font-size: 11px; letter-spacing: 1.4px; color: #8d939c; margin-top: 4px; }
-  .cdmsg { margin-top: 12px; font-size: 26px; font-weight: 800; color: #ff5a36; text-align: center; padding: 18px 0; background: #101216; border-radius: 12px; display: none; }
-  .sess { margin-top: 12px; }
+  .cdmsg { margin-top: 22px; font-size: 26px; font-weight: 800; color: #ff5a36; text-align: center; padding: 18px 0; background: #101216; border-radius: 12px; display: none; }
+  .sess { margin-top: 18px; }
   .se { font-size: 16px; padding: 5px 8px; border-radius: 8px; }
   .se .k { -webkit-flex: 1; flex: 1; }
-  .se .w { color: #a7adb5; width: 54px; }
+  .se .w { color: #a7adb5; width: 96px; }
   .se .h { width: 52px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   .se.done { color: #5d636b; } .se.done .w, .se.done .h { color: #5d636b; }
   .se.nxt { background: #2a1d1a; } .se.nxt .k { color: #ff8a6d; font-weight: 700; }
@@ -194,7 +194,7 @@
     var bst = t >= lastSunday(y, 2) && t < lastSunday(y, 9);
     return new Date(t + (bst ? 3600000 : 0)); // read with getUTC* methods
   }
-  function ukDay(t) { return DAYS[uk(t).getUTCDay()]; }
+  function ukDay(t) { var d = uk(t); return DAYS[d.getUTCDay()] + " " + pad(d.getUTCDate()) + "/" + pad(d.getUTCMonth() + 1); }
   function ukHM(t) { var d = uk(t); return pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()); }
   function ukDate(t) { var d = uk(t); return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]; }
   function ts(o) { if (!o || !o.date) return 0; return Date.parse(o.date + "T" + (o.time || "12:00:00Z").replace(/Z?$/, "Z")); }
