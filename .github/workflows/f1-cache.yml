@@ -1,0 +1,34 @@
+name: Save F1 backup data
+
+on:
+  schedule:
+    - cron: "23 */4 * * *"   # every 4 hours; the page normally reads live data, this is only the fallback
+  push:
+    branches: [main]
+    paths: ["scripts/f1_cache.py", ".github/workflows/f1-cache.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: f1-cache
+  cancel-in-progress: true
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/f1_cache.py
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add f1/cache
+          git diff --cached --quiet && { echo "No change"; exit 0; }
+          git commit -m "Update F1 backup data"
+          git push

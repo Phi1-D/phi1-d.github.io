@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Grand Prix Dashboard</title>
+<meta name="description" content="A free, unofficial Grand Prix dashboard for an old tablet: next race countdown, session times in UK time, standings and a fact of the day.">
+<meta name="theme-color" content="#101216">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101216'/%3E%3Cpath d='M14 46h36' stroke='%23ff5a36' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M16 18h12v12H16zM28 30h12v12H28zM40 18h8v12h-8z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  /* Written for old Android browsers (e.g. Fire OS 5): flexbox only, no grid, ES5 script. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #101216; }
+  body { font-family: Roboto, "Helvetica Neue", Arial, sans-serif; color: #e8e6e3; overflow: hidden; -webkit-user-select: none; user-select: none; }
+  .app { position: absolute; left: 0; top: 0; width: 1024px; height: 600px; padding: 16px 20px 10px; -webkit-transform-origin: 0 0; transform-origin: 0 0; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+  .row { display: -webkit-flex; display: flex; }
+  .lbl { font-size: 13px; font-weight: 700; letter-spacing: 1.6px; color: #8d939c; text-transform: uppercase; }
+  .acc { color: #ff5a36; }
+  .panel { background: #1a1d23; border-radius: 16px; padding: 14px 16px; }
+
+  /* Header */
+  .head { -webkit-align-items: flex-end; align-items: flex-end; height: 50px; }
+  .brand { -webkit-flex: 1; flex: 1; }
+  .brand .t { font-size: 22px; font-weight: 800; letter-spacing: .5px; }
+  .brand .t i { font-style: normal; color: #ff5a36; }
+  .brand .s { font-size: 12px; color: #6f757e; margin-top: 2px; }
+  .clock { font-size: 44px; font-weight: 300; line-height: 1; letter-spacing: -1px; }
+  .date { font-size: 15px; color: #a7adb5; margin: 0 14px 4px 0; text-align: right; }
+
+  .main { margin-top: 12px; height: 404px; }
+  /* Next race */
+  .next { width: 430px; margin-right: 12px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+  .rname { font-size: 30px; font-weight: 800; line-height: 1.1; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .circ { font-size: 15px; color: #a7adb5; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cd { margin-top: 12px; }
+  .cd .b { -webkit-flex: 1; flex: 1; background: #101216; border-radius: 12px; text-align: center; padding: 8px 0 6px; margin-right: 8px; }
+  .cd .b:last-child { margin-right: 0; }
+  .cd .n { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cd .u { font-size: 11px; letter-spacing: 1.4px; color: #8d939c; margin-top: 4px; }
+  .cdmsg { margin-top: 12px; font-size: 26px; font-weight: 800; color: #ff5a36; text-align: center; padding: 18px 0; background: #101216; border-radius: 12px; display: none; }
+  .sess { margin-top: 12px; }
+  .se { font-size: 16px; padding: 5px 8px; border-radius: 8px; }
+  .se .k { -webkit-flex: 1; flex: 1; }
+  .se .w { color: #a7adb5; width: 54px; }
+  .se .h { width: 52px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .se.done { color: #5d636b; } .se.done .w, .se.done .h { color: #5d636b; }
+  .se.nxt { background: #2a1d1a; } .se.nxt .k { color: #ff8a6d; font-weight: 700; }
+  .uk { font-size: 11px; color: #6f757e; margin-top: auto; }
+
+  /* Drivers */
+  .drv { width: 296px; margin-right: 12px; }
+  .tbl { margin-top: 8px; }
+  .tr { font-size: 16px; height: 34px; -webkit-align-items: center; align-items: center; border-bottom: 1px solid #23272e; }
+  .tr:last-child { border-bottom: 0; }
+  .tr .p { width: 26px; color: #8d939c; font-weight: 700; }
+  .tr .nm { -webkit-flex: 1; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tr .nm small { color: #7d838c; font-size: 12px; margin-left: 4px; }
+  .tr .pt { width: 48px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tr.lead .p { color: #ff5a36; }
+
+  /* Right column */
+  .rc { -webkit-flex: 1; flex: 1; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; min-width: 0; }
+  .rc .panel { margin-bottom: 12px; }
+  .rc .panel:last-child { margin-bottom: 0; -webkit-flex: 1; flex: 1; }
+  .tm .tr { height: 30px; font-size: 15px; }
+  .pod .tr { height: 30px; font-size: 15px; }
+  .pod .sub { font-size: 13px; color: #a7adb5; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Bottom */
+  .bot { margin-top: 12px; height: 90px; }
+  .prog { width: 430px; margin-right: 12px; }
+  .bar { height: 10px; background: #101216; border-radius: 5px; margin-top: 12px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: #ff5a36; border-radius: 5px; }
+  .pgt { font-size: 20px; font-weight: 700; margin-top: 10px; }
+  .fact { -webkit-flex: 1; flex: 1; overflow: hidden; }
+  .ftx { font-size: 18px; line-height: 1.3; margin-top: 6px; }
+  .foot { font-size: 11px; color: #5d636b; margin-top: 6px; }
+  .foot b { color: #8d939c; font-weight: 400; }
+  .warn { color: #e0b44a !important; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="row head">
+    <div class="brand"><div class="t">GRAND PRIX <i>DASHBOARD</i></div><div class="s">Unofficial fan dashboard &middot; tap for full screen</div></div>
+    <div class="date" id="date"></div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <div class="row main">
+    <div class="panel next">
+      <div class="lbl"><span class="acc">Next race</span> &middot; <span id="rnd">Loading&hellip;</span></div>
+      <div class="rname" id="rname">&nbsp;</div>
+      <div class="circ" id="circ">&nbsp;</div>
+      <div class="row cd" id="cd">
+        <div class="b"><div class="n" id="cdD">-</div><div class="u">DAYS</div></div>
+        <div class="b"><div class="n" id="cdH">-</div><div class="u">HRS</div></div>
+        <div class="b"><div class="n" id="cdM">-</div><div class="u">MINS</div></div>
+        <div class="b"><div class="n" id="cdS">-</div><div class="u">SECS</div></div>
+      </div>
+      <div class="cdmsg" id="cdmsg">RACE UNDERWAY</div>
+      <div class="sess" id="sess"></div>
+      <div class="uk">Times shown in UK time</div>
+    </div>
+
+    <div class="panel drv">
+      <div class="lbl" id="dlbl">Drivers</div>
+      <div class="tbl" id="drivers"></div>
+    </div>
+
+    <div class="rc">
+      <div class="panel tm">
+        <div class="lbl" id="tlbl">Teams</div>
+        <div class="tbl" id="teams"></div>
+      </div>
+      <div class="panel pod">
+        <div class="lbl">Last race</div>
+        <div class="sub" id="lastname"></div>
+        <div class="tbl" id="podium"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row bot">
+    <div class="panel prog">
+      <div class="lbl">Season</div>
+      <div class="pgt" id="pgt">&nbsp;</div>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+    <div class="panel fact">
+      <div class="lbl">Did you know?</div>
+      <div class="ftx" id="fact"></div>
+    </div>
+  </div>
+  <div class="foot" id="foot">Unofficial &middot; not affiliated with Formula 1 or the FIA &middot; data: Jolpica F1 API</div>
+</div>
+
+<script>
+(function () {
+  var API = "https://api.jolpi.ca/ergast/f1/";
+  var FACTS = [
+    "The first World Championship Grand Prix was held at Silverstone in 1950.",
+    "Lewis Hamilton and Michael Schumacher have both won seven world titles.",
+    "Lewis Hamilton has won more Grands Prix than any other driver.",
+    "Fernando Alonso has started more Grands Prix than any other driver.",
+    "Ferrari is the only team to have raced in every World Championship season since 1950.",
+    "Max Verstappen became the youngest ever race winner, aged 18, at the 2016 Spanish Grand Prix.",
+    "Ayrton Senna won the Monaco Grand Prix six times, a record.",
+    "John Surtees is the only person to win world titles on both two wheels and four.",
+    "Graham and Damon Hill were the first father and son to both become world champions.",
+    "Britain has produced more Formula 1 world champions than any other country.",
+    "Juan Manuel Fangio won five world titles in the 1950s.",
+    "Sebastian Vettel won four world titles in a row, from 2010 to 2013.",
+    "A top pit crew can change all four tyres in about two seconds.",
+    "McLaren set a pit stop record of 1.80 seconds at the 2023 Qatar Grand Prix.",
+    "F1 brake discs can glow at over 1,000°C.",
+    "Drivers can lose two to three kilograms in sweat during a hot race.",
+    "Drivers feel forces of up to around 5g in the fastest corners.",
+    "In theory, an F1 car makes enough downforce to drive upside down at high speed.",
+    "An F1 steering wheel has dozens of buttons, switches and dials.",
+    "Most races are just over 305 km long. Monaco is the exception, at about 260 km.",
+    "Spa-Francorchamps in Belgium is the longest track on the calendar, at about 7 km.",
+    "Monza in Italy is nicknamed the Temple of Speed.",
+    "Singapore held F1's first night race, in 2008.",
+    "The Monaco Grand Prix was first held in 1929.",
+    "Silverstone has hosted the British Grand Prix every year since 1987.",
+    "The halo, the curved bar above the cockpit, was introduced in 2018 to protect drivers' heads.",
+    "Every team uses the same tyre supplier: Pirelli.",
+    "Soft tyres have red markings, mediums yellow and hards white.",
+    "Wet-weather tyres have blue markings; intermediates have green.",
+    "The race winner scores 25 points.",
+    "A blue flag tells a driver to let a faster car, about to lap them, go past.",
+    "A yellow flag means danger ahead: slow down and no overtaking.",
+    "A red flag means the session has been stopped.",
+    "The pit lane speed limit is usually 80 km/h.",
+    "A Grand Prix can't run for more than two hours of racing.",
+    "Michael Schumacher won 91 Grands Prix.",
+    "Nigel Mansell won the world title in 1992, and Jenson Button in 2009.",
+    "Las Vegas held its first race on the famous Strip in 2023."
+  ];
+  var DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var nextRace = null, raceStart = 0, sessions = [], usedCache = false, loadedAt = 0;
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  // UK time without relying on Intl (old browsers): BST runs from 01:00 UTC on the last Sunday of March to the last Sunday of October.
+  function lastSunday(y, m) { var d = new Date(Date.UTC(y, m + 1, 0, 1)); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.getTime(); }
+  function uk(t) {
+    var y = new Date(t).getUTCFullYear();
+    var bst = t >= lastSunday(y, 2) && t < lastSunday(y, 9);
+    return new Date(t + (bst ? 3600000 : 0)); // read with getUTC* methods
+  }
+  function ukDay(t) { return DAYS[uk(t).getUTCDay()]; }
+  function ukHM(t) { var d = uk(t); return pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()); }
+  function ukDate(t) { var d = uk(t); return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]; }
+  function ts(o) { if (!o || !o.date) return 0; return Date.parse(o.date + "T" + (o.time || "12:00:00Z").replace(/Z?$/, "Z")); }
+
+  // Live from the API; if that fails, fall back to the copy saved on this site every few hours.
+  function get(path, cacheName, cb) {
+    req(API + path, function (d) {
+      if (d) return cb(d);
+      usedCache = true;
+      req("cache/" + cacheName + ".json?t=" + Math.floor(Date.now() / 600000), cb);
+    });
+  }
+  function req(url, cb) {
+    var x = new XMLHttpRequest(), done = false;
+    function fin(v) { if (!done) { done = true; cb(v); } }
+    try {
+      x.open("GET", url, true); x.timeout = 12000;
+      x.onload = function () { if (x.status >= 200 && x.status < 300) { try { return fin(JSON.parse(x.responseText)); } catch (e) {} } fin(null); };
+      x.onerror = x.ontimeout = function () { fin(null); };
+      x.send();
+    } catch (e) { fin(null); }
+  }
+
+  function races(d) { try { return d.MRData.RaceTable.Races || []; } catch (e) { return []; } }
+  function standings(d, key) { try { var l = d.MRData.StandingsTable.StandingsLists; return l.length ? { round: +l[0].round, season: l[0].season, rows: l[0][key] } : null; } catch (e) { return null; } }
+
+  function load() {
+    usedCache = false;
+    get("current.json", "schedule", function (sched) {
+      var list = races(sched), season = sched ? +sched.MRData.RaceTable.season : new Date().getUTCFullYear();
+      var now = Date.now(), i, nr = null;
+      for (i = 0; i < list.length; i++) { if (ts(list[i]) + 2.5 * 3600000 > now) { nr = list[i]; break; } }
+      if (nr) { showNext(nr, list.length); }
+      else get((season + 1) + ".json", "next-schedule", function (ns) { var l2 = races(ns); if (l2.length) showNext(l2[0], l2.length); else showNoNext(season + 1); });
+
+      get("current/driverStandings.json", "drivers", function (d) {
+        var s = standings(d, "DriverStandings");
+        if (s && s.rows.length) return showDrivers(s, false, list.length);
+        get((season - 1) + "/driverStandings.json", "prev-drivers", function (p) { var s2 = standings(p, "DriverStandings"); if (s2) showDrivers(s2, true, 0); });
+      });
+      get("current/constructorStandings.json", "constructors", function (d) {
+        var s = standings(d, "ConstructorStandings");
+        if (s && s.rows.length) return showTeams(s, false);
+        get((season - 1) + "/constructorStandings.json", "prev-constructors", function (p) { var s2 = standings(p, "ConstructorStandings"); if (s2) showTeams(s2, true); });
+      });
+      get("current/last/results.json", "last", function (d) {
+        var r = races(d);
+        if (r.length && r[0].Results && r[0].Results.length) return showLast(r[0]);
+        get((season - 1) + "/last/results.json", "prev-last", function (p) { var r2 = races(p); if (r2.length) showLast(r2[0]); });
+      });
+      loadedAt = Date.now();
+      setTimeout(foot, 4000);
+    });
+  }
+
+  function showNext(r, total) {
+    nextRace = r; raceStart = ts(r);
+    $("rnd").innerHTML = "Round " + esc(r.round) + " of " + total + " &middot; " + esc(r.season);
+    $("rname").innerHTML = esc(r.raceName);
+    var loc = r.Circuit.Location || {};
+    $("circ").innerHTML = esc(r.Circuit.circuitName) + " &middot; " + esc(loc.locality) + ", " + esc(loc.country);
+    var names = [["FirstPractice", "Practice 1"], ["SecondPractice", "Practice 2"], ["ThirdPractice", "Practice 3"], ["SprintQualifying", "Sprint qualifying"], ["SprintShootout", "Sprint shootout"], ["Sprint", "Sprint"], ["Qualifying", "Qualifying"]];
+    sessions = [];
+    for (var i = 0; i < names.length; i++) if (r[names[i][0]]) sessions.push({ n: names[i][1], t: ts(r[names[i][0]]) });
+    sessions.push({ n: "Race", t: raceStart });
+    sessions.sort(function (a, b) { return a.t - b.t; });
+    tick();
+  }
+  function showNoNext(y) { $("rnd").innerHTML = "Off season"; $("rname").innerHTML = y + " calendar to be confirmed"; $("circ").innerHTML = "&nbsp;"; $("cd").style.display = "none"; }
+
+  function drawSessions() {
+    var now = Date.now(), h = "", nxt = -1, i;
+    for (i = 0; i < sessions.length; i++) if (sessions[i].t + 3600000 > now) { nxt = i; break; }
+    for (i = 0; i < sessions.length; i++) {
+      var s = sessions[i], c = s.t + 3600000 <= now ? "done" : (i === nxt ? "nxt" : "");
+      h += '<div class="row se ' + c + '"><span class="k">' + s.n + '</span><span class="w">' + ukDay(s.t) + '</span><span class="h">' + ukHM(s.t) + "</span></div>";
+    }
+    $("sess").innerHTML = h;
+  }
+
+  function showDrivers(s, prev, total) {
+    $("dlbl").innerHTML = prev ? "Drivers &middot; " + s.season + " final" : "Drivers' championship";
+    var h = "", rows = s.rows.slice(0, 10);
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], team = r.Constructors && r.Constructors.length ? r.Constructors[r.Constructors.length - 1].name : "";
+      h += '<div class="row tr' + (i === 0 ? " lead" : "") + '"><span class="p">' + esc(r.positionText || r.position) + '</span><span class="nm">' + esc(r.Driver.familyName) + "<small>" + esc(team) + '</small></span><span class="pt">' + esc(r.points) + "</span></div>";
+    }
+    $("drivers").innerHTML = h;
+    if (prev) { $("pgt").innerHTML = s.season + " season complete"; $("bar").style.width = "100%"; }
+    else if (total) { $("pgt").innerHTML = "Round " + s.round + " of " + total + " completed"; $("bar").style.width = Math.round(100 * s.round / total) + "%"; }
+  }
+  function showTeams(s, prev) {
+    $("tlbl").innerHTML = prev ? "Teams &middot; " + s.season + " final" : "Teams' championship";
+    var h = "", rows = s.rows.slice(0, 5);
+    for (var i = 0; i < rows.length; i++) h += '<div class="row tr' + (i === 0 ? " lead" : "") + '"><span class="p">' + esc(rows[i].position) + '</span><span class="nm">' + esc(rows[i].Constructor.name) + '</span><span class="pt">' + esc(rows[i].points) + "</span></div>";
+    $("teams").innerHTML = h;
+  }
+  function showLast(r) {
+    $("lastname").innerHTML = esc(r.raceName) + " &middot; " + ukDate(ts(r));
+    var h = "", res = r.Results.slice(0, 3);
+    for (var i = 0; i < res.length; i++) h += '<div class="row tr' + (i === 0 ? " lead" : "") + '"><span class="p">' + esc(res[i].position) + '</span><span class="nm">' + esc(res[i].Driver.familyName) + "<small>" + esc(res[i].Constructor.name) + "</small></span></div>";
+    $("podium").innerHTML = h;
+  }
+
+  function tick() {
+    var now = Date.now(), d = uk(now);
+    $("clock").innerHTML = pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
+    $("date").innerHTML = DAYS[d.getUTCDay()] + " " + d.getUTCDate() + " " + MONTHS[d.getUTCMonth()];
+    if (raceStart) {
+      var left = raceStart - now;
+      if (left <= 0) { $("cd").style.display = "none"; $("cdmsg").style.display = "block"; if (left < -2.5 * 3600000) { raceStart = 0; load(); } }
+      else {
+        $("cd").style.display = ""; $("cdmsg").style.display = "none";
+        var s = Math.floor(left / 1000);
+        $("cdD").innerHTML = Math.floor(s / 86400); $("cdH").innerHTML = pad(Math.floor(s % 86400 / 3600));
+        $("cdM").innerHTML = pad(Math.floor(s % 3600 / 60)); $("cdS").innerHTML = pad(s % 60);
+      }
+      if (d.getUTCSeconds() === 0 || !$("sess").innerHTML) drawSessions();
+    }
+  }
+  function fact() {
+    var day = Math.floor(uk(Date.now()).getTime() / 86400000);
+    $("fact").innerHTML = esc(FACTS[day % FACTS.length]);
+    var f = $("fact"), fs = 18; f.style.fontSize = fs + "px";
+    while (f.parentNode.scrollHeight > f.parentNode.clientHeight + 1 && fs > 13) { fs--; f.style.fontSize = fs + "px"; }
+  }
+  function foot() {
+    var t = uk(loadedAt);
+    $("foot").innerHTML = "Unofficial &middot; not affiliated with Formula 1 or the FIA &middot; data: Jolpica F1 API &middot; <b>updated " + pad(t.getUTCHours()) + ":" + pad(t.getUTCMinutes()) + "</b>" + (usedCache ? ' <span class="warn">(saved copy)</span>' : "");
+  }
+
+  function fit() {
+    var de = document.documentElement;
+    var w = Math.min(window.innerWidth, de.clientWidth || 9999), h = Math.min(window.innerHeight, de.clientHeight || 9999);
+    var sc = Math.min(w / 1024, h / 600), x = Math.max(0, (w - 1024 * sc) / 2), y = Math.max(0, (h - 600 * sc) / 2);
+    var t = "translate(" + x + "px," + y + "px) scale(" + sc + ")", a = $("app");
+    a.style.webkitTransform = t; a.style.transform = t;
+  }
+  function goFull() {
+    var doc = document, el = doc.documentElement;
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) return;
+    var r = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
+    if (r) { try { r.call(el); } catch (e) {} }
+  }
+  document.addEventListener("click", goFull, true);
+  document.addEventListener("touchend", goFull, true);
+  window.addEventListener("resize", fit);
+  document.addEventListener("fullscreenchange", function () { setTimeout(fit, 300); });
+  document.addEventListener("webkitfullscreenchange", function () { setTimeout(fit, 300); });
+
+  fit(); tick(); fact(); load();
+  setInterval(tick, 1000);
+  setInterval(load, 15 * 60000);      // fresh standings and schedule every 15 minutes
+  setInterval(fact, 30 * 60000);
+})();
+</script>
+<script data-goatcounter="https://homedash.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

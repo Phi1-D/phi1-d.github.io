@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turn an Old Tablet into a Home Dashboard</title>
+<meta name="description" content="A free, practical guide to turning an old Amazon Fire or Android tablet into a family home dashboard, built with an AI assistant. Weather, calendar, chores, radio and more.">
+<meta property="og:title" content="Turn an Old Tablet into a Home Dashboard">
+<meta property="og:description" content="A free guide: weather, family calendar, chores, a countdown, fact of the day and one-tap radio, on a tablet you already own.">
+<meta property="og:image" content="https://phi1-d.github.io/img/cover.jpg">
+<meta property="og:url" content="https://phi1-d.github.io/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f6f1e9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='12' width='52' height='38' rx='7' fill='%2324292f'/%3E%3Crect x='11' y='17' width='42' height='28' rx='3' fill='%23f6f1e9'/%3E%3Crect x='15' y='21' width='14' height='20' rx='2' fill='%232f6db3'/%3E%3Crect x='32' y='21' width='17' height='9' rx='2' fill='%23e0b44a'/%3E%3Crect x='32' y='32' width='17' height='9' rx='2' fill='%232e8b57'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f6f1e9; --paper: #fffdf9; --ink: #2a2622; --muted: #6b635a; --line: #e4d9c8;
+    --dark: #24292f; --blue: #2f6db3; --green: #2e8b57; --red: #c0392b; --gold: #e0b44a; --gold-bg: #fdf3dc;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+  a { color: var(--blue); }
+  img { max-width: 100%; height: auto; display: block; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  .narrow { max-width: 760px; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -0.01em; margin: 0; }
+  h2 { font-size: clamp(26px, 4vw, 34px); margin-bottom: 14px; }
+  h3 { font-size: 20px; margin-bottom: 6px; }
+  p { margin: 0 0 14px; }
+  .kicker { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--line); }
+
+  /* Top bar */
+  .top { position: sticky; top: 0; z-index: 10; background: rgba(246,241,233,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; gap: 16px; height: 56px; }
+  .logo { font-weight: 800; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .logo span.dot { width: 26px; height: 20px; border-radius: 5px; background: var(--dark); position: relative; }
+  .logo span.dot::after { content: ""; position: absolute; inset: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--blue) 0 45%, var(--gold) 45% 100%); }
+  .top nav { margin-left: auto; display: flex; gap: 18px; font-size: 15px; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+  .top .cta-sm { background: var(--dark); color: #fff !important; padding: 7px 14px; border-radius: 999px; }
+  @media (max-width: 720px) { .top nav a:not(.cta-sm) { display: none; } }
+
+  /* Hero */
+  .hero { padding: 48px 0 40px; }
+  .hero h1 { font-size: clamp(36px, 6.4vw, 60px); font-weight: 800; letter-spacing: -0.025em; max-width: 14ch; }
+  .hero .lede { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); max-width: 46ch; margin: 18px 0 26px; }
+  .byline { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 999px; font-weight: 700; font-size: 16px; text-decoration: none; border: 2px solid var(--dark); color: var(--dark); background: transparent; cursor: pointer; }
+  .btn.primary { background: var(--dark); color: #fff; }
+  .btn.gold { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+  .btn:hover { transform: translateY(-1px); }
+  .shot { margin-top: 36px; background: var(--dark); border-radius: 28px; padding: 18px; box-shadow: 0 30px 60px -30px rgba(36,41,47,.55); position: relative; }
+  .shot::before { content: ""; position: absolute; top: 7px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #5a6168; }
+  .shot img { border-radius: 10px; }
+  .caption { font-size: 14px; color: var(--muted); margin-top: 12px; text-align: center; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 28px; }
+  .stat { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .stat b { display: block; font-size: 30px; line-height: 1.1; }
+  .stat span { font-size: 14px; color: var(--muted); }
+  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Try it now */
+  .try { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .tcard { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); }
+  .tcard .url { font: 700 clamp(20px, 3vw, 26px)/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 8px 0 10px; color: var(--ink); word-break: break-all; }
+  .tcard .url em { font-style: normal; color: var(--red); }
+  .tcard p { color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+  .tcard .go { margin-top: auto; font-weight: 700; color: var(--blue); }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: var(--gold-bg); color: #8a6a12; align-self: flex-start; }
+  .tag.f1 { background: #fde6e1; color: #a2321c; }
+  @media (max-width: 720px) { .try { grid-template-columns: 1fr; } }
+
+  /* Two-col */
+  .two { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; }
+  .two img { border-radius: var(--radius); }
+  @media (max-width: 800px) { .two { grid-template-columns: 1fr; } }
+  .feat { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+  .feat li { padding-left: 26px; position: relative; font-size: 16px; }
+  .feat li::before { content: ""; position: absolute; left: 0; top: 7px; width: 14px; height: 14px; border-radius: 4px; background: var(--c, var(--blue)); }
+
+  /* Needs */
+  .needs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
+  .need { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; border-top: 5px solid var(--c, var(--blue)); }
+  .need h3 { font-size: 17px; }
+  .need .why { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .need p { font-size: 15px; margin: 0; }
+  .need small { display: block; font-size: 14px; color: var(--muted); margin-top: 8px; }
+  @media (max-width: 860px) { .needs { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .needs { grid-template-columns: 1fr; } }
+  .note { background: var(--gold-bg); border: 1px solid #efd697; border-radius: var(--radius); padding: 14px 18px; font-size: 15px; margin-top: 18px; }
+
+  .checks { list-style: none; padding: 0; margin: 12px 0 0; }
+  .checks li { padding-left: 30px; position: relative; margin-bottom: 6px; }
+  .checks li::before { content: "\2713"; position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 800; text-align: center; line-height: 20px; margin-top: 3px; }
+
+  .diagram { margin-top: 20px; border-radius: var(--radius); border: 1px solid var(--line); background: #f6f1e9; overflow: hidden; }
+
+  /* Steps */
+  .steps { list-style: none; padding: 0; margin: 24px 0 0; counter-reset: s; }
+  .steps li { counter-increment: s; position: relative; padding: 0 0 22px 64px; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 42px; height: 42px; border-radius: 50%; background: var(--dark); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .steps li::after { content: ""; position: absolute; left: 20px; top: 46px; bottom: 4px; width: 2px; background: var(--line); }
+  .steps li:last-child::after { display: none; }
+  .steps h3 { font-size: 18px; padding-top: 8px; }
+  .steps p { margin: 0; color: #4a443d; font-size: 16px; }
+
+  /* Prompts */
+  .prompt { background: var(--dark); color: #e8ecef; border-radius: var(--radius); margin-top: 18px; overflow: hidden; }
+  .prompt header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #3b4148; }
+  .prompt header h3 { font-size: 16px; margin: 0; color: #fff; }
+  .prompt header .copy { margin-left: auto; background: var(--gold); color: var(--ink); border: 0; border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .prompt pre { margin: 0; padding: 18px; white-space: pre-wrap; word-wrap: break-word; font: 14.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-height: 520px; overflow: auto; }
+  .prompt pre mark { background: rgba(224,180,74,.22); color: #ffd877; border-radius: 4px; padding: 0 3px; }
+
+  /* Table */
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
+  .tbl th, .tbl td { text-align: left; padding: 12px 16px; vertical-align: top; border-bottom: 1px solid var(--line); }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl th { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: #faf5ec; }
+  .tbl td:first-child { font-weight: 700; white-space: nowrap; }
+  @media (max-width: 640px) {
+    .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+    .tbl thead { display: none; }
+    .tbl tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+    .tbl td { border: 0; padding: 4px 16px; white-space: normal !important; }
+  }
+
+  .safety { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+  .safety li { background: var(--paper); border: 1px solid var(--line); border-left: 5px solid var(--red); border-radius: 12px; padding: 14px 18px; font-size: 16px; }
+
+  /* Interest */
+  .interest { background: var(--dark); color: #fff; border-radius: 28px; padding: clamp(28px, 5vw, 48px); display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items: center; }
+  .interest h2 { color: #fff; }
+  .interest p { color: #c9d0d7; }
+  .interest ul { margin: 0 0 18px; padding-left: 20px; color: #c9d0d7; }
+  .interest .side { background: #2f353c; border-radius: 18px; padding: 22px; }
+  .interest .side p { font-size: 14px; margin: 12px 0 0; }
+  .interest .btn { border-color: var(--gold); }
+  @media (max-width: 800px) { .interest { grid-template-columns: 1fr; } }
+
+  .privacy { font-size: 15px; color: #4a443d; }
+  .privacy h3 { font-size: 16px; margin-top: 18px; }
+  footer { padding: 28px 0 40px; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--dark); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 15px; opacity: 0; transition: .25s; pointer-events: none; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <a class="logo" href="#"><span class="dot"></span>Home Dashboard</a>
+    <nav>
+      <a href="#try">Try it</a>
+      <a href="#need">What you need</a>
+      <a href="#steps">Steps</a>
+      <a href="#prompts">AI prompts</a>
+      <a class="cta-sm" href="https://tally.so/r/6DKOrk" target="_blank" rel="noopener" data-goatcounter-click="interest-nav" data-goatcounter-title="Register interest (top bar)">Register interest</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Free guide &middot; Amazon Fire &amp; Android tablets</div>
+    <h1>Turn an old tablet into a home dashboard</h1>
+    <p class="lede">Live weather, the family calendar, chores, a countdown, a fact of the day and one-tap radio, on a tablet you already own. Built with an AI assistant, using free services only.</p>
+    <div class="byline">By Philip Daley &middot; November 2026</div>
+    <div class="btns">
+      <a class="btn primary" href="#steps">Read the guide</a>
+      <a class="btn" href="/demo" data-goatcounter-click="hero-demo" data-goatcounter-title="See the demo (hero)">See it on your tablet</a>
+      <a class="btn" href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-hero" data-goatcounter-title="Download PDF (hero)">Download PDF</a>
+    </div>
+    <div class="shot"><img src="img/cover.jpg" width="1600" height="938" alt="The home dashboard: clock, weather and forecast on the left; today's and tomorrow's calendar, a Christmas countdown, a fact of the day and radio buttons on the right"></div>
+    <div class="caption">The finished dashboard, shown with sample data.</div>
+    <div class="stats">
+      <div class="stat"><b>£0</b><span>running cost</span></div>
+      <div class="stat"><b>A weekend</b><span>for your first one</span></div>
+      <div class="stat"><b>5</b><span>live feeds</span></div>
+      <div class="stat"><b>30 min</b><span>between updates</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="try">
+  <div class="wrap">
+    <div class="kicker">Try it now, nothing to set up</div>
+    <h2>See it on your own tablet first</h2>
+    <p class="narrow">Open either of these in your tablet's web browser, then tap the screen to go full screen.</p>
+    <div class="try">
+      <a class="card tcard" href="/demo" data-goatcounter-click="try-demo" data-goatcounter-title="Try: demo">
+        <span class="tag">Preview</span>
+        <div class="url">phi1-d.github.io/<em>demo</em></div>
+        <p>The home dashboard from this guide, full screen, with sample data. See how it fits your screen before you build anything.</p>
+        <span class="go">Open the demo &rarr;</span>
+      </a>
+      <a class="card tcard" href="/f1" data-goatcounter-click="try-f1" data-goatcounter-title="Try: F1 dashboard">
+        <span class="tag f1">Free to keep</span>
+        <div class="url">phi1-d.github.io/<em>f1</em></div>
+        <p>A live Grand Prix dashboard: countdown to the next race, session times in UK time, standings and the last podium. Updates itself and needs no personal details.</p>
+        <span class="go">Open the F1 dashboard &rarr;</span>
+      </a>
+    </div>
+    <p class="caption" style="text-align:left">Tip: it's <b>phi1</b> with the number one, not the letter L.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div>
+      <div class="kicker">What you'll end up with</div>
+      <h2>A morning check-in for the whole household</h2>
+      <p>A colour, touch-screen dashboard that keeps the household on track each morning, built from a tablet you already own. Nothing needs to be bought: everything runs on free services, and the AI assistant writes the code.</p>
+      <ul class="feat">
+        <li style="--c:var(--green)">Live weather and rain</li>
+        <li style="--c:var(--blue)">Today and tomorrow</li>
+        <li style="--c:var(--blue)">Chores list</li>
+        <li style="--c:var(--gold)">Countdown to Christmas</li>
+        <li style="--c:var(--gold)">Fact of the day</li>
+        <li style="--c:var(--red)">One-tap radio</li>
+      </ul>
+    </div>
+    <figure style="margin:0"><img src="img/fire-in-action.jpg" alt="The dashboard running on an Amazon Fire 7 in a kitchen" loading="lazy"><figcaption class="caption">Running on an Amazon Fire 7 (calendar blurred).</figcaption></figure>
+  </div>
+</section>
+
+<section id="need">
+  <div class="wrap">
+    <div class="kicker">What you'll need</div>
+    <h2>Six things, mostly free</h2>
+    <p class="narrow">Budget a weekend for your first one, and about an hour for each improvement after that. The only cost is your time.</p>
+    <div class="needs">
+      <div class="need" style="--c:var(--dark)"><h3>An old tablet</h3><div class="why">The screen</div><p>An Amazon Fire or Android tablet with a web browser; older models are fine.</p><small>Plus its charger: mount it near a socket and Wi-Fi.</small></div>
+      <div class="need" style="--c:var(--gold)"><h3>An AI assistant</h3><div class="why">Writes and fixes the code</div><p>I used Claude; a paid plan helps on longer sessions.</p></div>
+      <div class="need" style="--c:var(--dark)"><h3>A free GitHub account</h3><div class="why">Hosts it and runs the updates</div><p>No coding knowledge needed; the AI guides you.</p></div>
+      <div class="need" style="--c:var(--blue)"><h3>A calendar link</h3><div class="why">Feeds in the family calendar</div><p>An iCal (.ics) link, which all the main calendars provide.</p><small><b>iCloud:</b> the owner turns on Public Calendar. <b>Google:</b> on a computer, Settings &rarr; Integrate calendar &rarr; Secret address in iCal format. <b>Outlook:</b> Settings &rarr; Shared calendars &rarr; Publish a calendar.</small></div>
+      <div class="need" style="--c:var(--green)"><h3>A free cron-job.org account</h3><div class="why">Triggers an update every 30 minutes</div><p>Recommended: GitHub's own scheduler ran under 10% of the time in my tests.</p></div>
+      <div class="need" style="--c:var(--red)"><h3>Shortcuts or Tasker</h3><div class="why">Pushes a chores list from your notes</div><p>Apple Shortcuts, or an Android automation app such as Tasker.</p><small>Optional: you can edit the chores list on GitHub instead.</small></div>
+    </div>
+    <div class="note"><b>Skill level:</b> comfortable following instructions, copying and pasting, and changing settings. You don't need to write code yourself.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div>
+      <div class="kicker">Will my tablet work?</div>
+      <h2>Almost certainly, if it can open a web page</h2>
+      <p>Mine is an Amazon Fire 7 on an older version of Fire OS, and the dashboard was written to suit its older browser.</p>
+      <ul class="checks">
+        <li>Any Amazon Fire or Android tablet with a working browser</li>
+        <li>Landscape works best; a 7-inch screen is enough</li>
+        <li>It needs to stay plugged in</li>
+        <li>No apps to install, and no changes to the tablet itself</li>
+      </ul>
+      <p style="margin-top:14px">Not sure? Open <a href="/demo">phi1-d.github.io/demo</a> on it and see.</p>
+    </div>
+    <figure style="margin:0"><img src="img/before-after.jpg" alt="Before and after: an unused tablet, then the same tablet as a kitchen dashboard" loading="lazy"><figcaption class="caption">The same Fire tablet, on day 1 and day 4.</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">How it works</div>
+    <h2>The tablet does almost no work</h2>
+    <p class="narrow">It just shows a web page and fetches its own weather. Everything else is prepared for it every 30 minutes by free services.</p>
+    <div class="diagram"><img src="img/how-it-works.jpg" alt="Diagram: calendar, chores and fact feeds go into a GitHub Actions build, started every 30 minutes by cron-job.org; the build publishes a web page and data file to GitHub Pages, which the tablet shows. Weather and radio go straight to the tablet."></div>
+  </div>
+</section>
+
+<section id="steps">
+  <div class="wrap narrow">
+    <div class="kicker">Step by step</div>
+    <h2>Seven steps from drawer to dashboard</h2>
+    <p>The AI does the building; your job is to decide what you want, carry out the steps it gives you, and tell it what you see.</p>
+    <ol class="steps">
+      <li><h3>Plan your screen</h3><p>List what your family needs at a glance in the morning: weather, calendar, chores, radio. Keep version 1 simple.</p></li>
+      <li><h3>Brief the AI</h3><p>Paste the starter prompt below, adding your town, your device and your list. Ask it to build a small project you can host for free on GitHub.</p></li>
+      <li><h3>Put it online</h3><p>Create a free GitHub account and an empty public repository. The AI can explain how to upload its files, or push them for you if it has GitHub access. Turn on GitHub Pages (Settings &rarr; Pages &rarr; Source: GitHub Actions).</p></li>
+      <li><h3>Connect your calendar</h3><p>Get your calendar's iCal link and store it as a GitHub secret named as the AI tells you. Never paste it into the code itself.</p></li>
+      <li><h3>Keep it fresh</h3><p>GitHub's built-in scheduler can be unreliable on new accounts. Set up a free cron-job.org job to trigger an update every 30 minutes; the AI will give you the exact settings.</p></li>
+      <li><h3>Set up the tablet</h3><p>Open the dashboard link in the browser, tap once to go full screen, and turn on Developer Options &rarr; Stay awake so the screen stays on while charging.</p></li>
+      <li><h3>Iterate with the family</h3><p>Use it for a few days, collect the complaints (text too small, buttons unclear), and ask the AI for one change at a time. Send it a photo of the screen: it can see what's wrong.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="prompts">
+  <div class="wrap narrow">
+    <div class="kicker">AI prompts to copy and paste</div>
+    <h2>Start with these</h2>
+    <p>Fill in the <mark style="background:var(--gold-bg);padding:0 4px;border-radius:4px">[square brackets]</mark>. Give the AI one job at a time, and paste back any error message word for word.</p>
+
+    <div class="prompt">
+      <header><h3>1. Starter: home dashboard</h3><button class="copy" data-p="p1">Copy</button></header>
+<pre id="p1">I want to turn my old tablet into a home dashboard for my family. I'm not a developer, so give me one step at a time and wait for me to confirm each one.
+
+The tablet I'd like to use is:
+[Brand, model and OS version, e.g. Amazon Fire 7, Fire OS 5]
+
+I am based in:
+[Town, country]
+
+Our family calendar is in:
+[iCloud / Google Calendar / Outlook]
+(I'll add its iCal link to GitHub myself, so don't ask me to paste it here.)
+
+Please show on one landscape screen:
+- A large clock and the date
+- Current weather, rain chances and a 4-day forecast, from a free weather service with no API key
+- Today's and tomorrow's events from our family calendar
+- A chores list, kept in: [Apple Notes / a list I edit on GitHub / leave this out]
+- A countdown to: [Christmas / a holiday / a birthday]
+- A fact of the day for children aged [ages], on topics such as: [animals, food, countries]
+- One-tap buttons for these radio stations: [station names]
+
+How it should work:
+- Host it for free on GitHub Pages
+- Update the calendar every 30 minutes (use cron-job.org if GitHub's own scheduler is unreliable)
+- Keep my calendar link in a GitHub secret, never in the code
+- My tablet's browser may be old, so avoid modern-only web features and test at its screen size
+
+I've attached a picture of the look I'm after: [attach an image, or delete this line]</pre>
+    </div>
+    <div class="note"><b>Tip:</b> attach a picture of the look you want. The <a href="img/cover.jpg" download data-goatcounter-click="download-cover" data-goatcounter-title="Download cover image">cover image</a> works well: it uses sample data, and gives the AI a clear target for the layout. Don't attach a photo of a dashboard showing your real calendar.</div>
+
+    <div class="prompt">
+      <header><h3>2. Refining it</h3><button class="copy" data-p="p2">Copy</button></header>
+<pre id="p2">Here's a photo of the dashboard on the tablet. [Describe the problem, e.g. the radio buttons run off the bottom / the weather text is too small / it's too bright at night.] Fix only that, and keep everything else the same.</pre>
+    </div>
+
+    <div class="prompt">
+      <header><h3>3. When something breaks</h3><button class="copy" data-p="p3">Copy</button></header>
+<pre id="p3">This step failed. Here's exactly what I did and the exact message I got: [paste]. What's the most likely cause, and what's the single next thing to try?</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Lessons learned</div>
+    <h2>Most of my time went on a handful of avoidable snags</h2>
+    <table class="tbl">
+      <thead><tr><th>Snag</th><th>What happened</th><th>How to avoid it</th></tr></thead>
+      <tbody>
+        <tr><td>Old browsers</td><td>Layout overflowed on the Fire's older browser</td><td>Tell the AI the exact device, and send photos of what it looks like</td></tr>
+        <tr><td>Changes not showing</td><td>The browser kept an old copy</td><td>Add ?v=2 (any new number) to the end of the link; ask the AI to make the page update itself</td></tr>
+        <tr><td>Data went stale</td><td>GitHub's schedule didn't run on a new account</td><td>Use cron-job.org to trigger updates</td></tr>
+        <tr><td>iPhone Shortcut errors</td><td>Menu names differ by iOS version, and variables were typed instead of inserted</td><td>Insert variables from the menu (they turn blue); test one action at a time</td></tr>
+        <tr><td>Dropping out of full screen</td><td>Page updates reset it</td><td>Ask the AI to wrap the dashboard so updates don't exit full screen</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <div class="kicker">Privacy and safety</div>
+    <h2>Treat its links like a house key</h2>
+    <p>Your dashboard shows where your family will be and when.</p>
+    <ul class="safety">
+      <li><b>Free hosting is public.</b> GitHub Pages on a free account serves pages publicly. Use a long random name for the dashboard's address so it can't be guessed, and don't share the link.</li>
+      <li><b>A public calendar link can be read by anyone who has it.</b> Keep it in a GitHub secret only, and avoid sensitive detail in event titles.</li>
+      <li><b>Blur before you post.</b> Photos of your dashboard could show children's names, activities, birthdays, and when the house is empty. Blur the calendar, and crop out the browser's address bar.</li>
+      <li><b>Access tokens:</b> give each one access to a single repository and only the permission it needs, and set a calendar reminder before it expires (mine last a year).</li>
+      <li><b>Radio streams are for personal listening.</b> Don't build them into anything you sell without checking the broadcaster's terms.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="interest">
+  <div class="wrap">
+    <div class="interest">
+      <div>
+        <div class="kicker" style="color:#9aa3ad">Rather not build it yourself?</div>
+        <h2>I'm exploring a done-for-you version</h2>
+        <p>Set up for you, reliably and securely, without GitHub accounts, scripts or tokens to manage. If that would interest you, register below. No commitment, and I'll only contact you about this.</p>
+        <a class="btn gold" href="https://tally.so/r/6DKOrk" target="_blank" rel="noopener" data-goatcounter-click="interest-main" data-goatcounter-title="Register interest (main)">Register interest &rarr;</a>
+      </div>
+      <div class="side">
+        <b>Prefer the PDF?</b>
+        <p>The full guide as a 7-page PDF, to read offline or print.</p>
+        <a class="btn" style="margin-top:14px;color:#fff;border-color:#fff" href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-footer" data-goatcounter-title="Download PDF (footer)">Download PDF</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap narrow privacy">
+    <div class="kicker">About this site</div>
+    <h2 style="font-size:24px">Privacy notice</h2>
+    <p>This site is run by Philip Daley, who decides how the information below is used.</p>
+    <h3>Visit counts</h3>
+    <p>I use GoatCounter to count visits. It sets no cookies and doesn't identify you: it records the page, the site that referred you, your browser, screen size and approximate country. Your IP address isn't stored.</p>
+    <h3>Register interest form</h3>
+    <p>The form is hosted by Tally. If you fill it in, I'll use your name, email and answers only to contact you about a done-for-you home dashboard and to judge whether there's enough interest to offer one. I won't sell or share them, and I'll delete them within 12 months if I don't go ahead, or sooner if you ask.</p>
+    <h3>The F1 dashboard</h3>
+    <p>It asks for no personal details. Race data is loaded in your browser from the Jolpica F1 API, which sees your IP address as any website would. It's an unofficial fan page, not affiliated with Formula 1 or the FIA.</p>
+    <h3>Your rights</h3>
+    <p>You can ask to see, correct or delete what I hold about you by replying to any email I send, or by messaging me on LinkedIn. If you're unhappy with how I've handled your data, you can complain to the Information Commissioner's Office (ico.org.uk).</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Built with Claude &middot; all free services</span>
+    <a href="/demo">Demo</a>
+    <a href="/f1">F1 dashboard</a>
+    <a href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-footer-link" data-goatcounter-title="Download PDF (footer link)">PDF</a>
+    <a href="#privacy">Privacy</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Copied: now paste it into your AI assistant</div>
+
+<script>
+  // Mark the [square bracket] fields in the prompts so they stand out.
+  document.querySelectorAll('.prompt pre').forEach(function (pre) {
+    pre.dataset.raw = pre.textContent;
+    pre.innerHTML = pre.textContent.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }).replace(/\[[^\]]+\]/g, '<mark>$&</mark>');
+  });
+  document.querySelectorAll('.copy').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = document.getElementById(b.dataset.p).dataset.raw, toast = document.getElementById('toast');
+      function ok() { toast.classList.add('on'); b.textContent = 'Copied'; setTimeout(function () { toast.classList.remove('on'); b.textContent = 'Copy'; }, 2200); }
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
+      function fallback() { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); ok(); } catch (e) {} t.remove(); }
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'copy-' + b.dataset.p, title: 'Copied prompt ' + b.dataset.p, event: true });
+    });
+  });
+</script>
+<script data-goatcounter="https://homedash.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

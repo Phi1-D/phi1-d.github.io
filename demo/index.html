@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Home Dashboard Demo</title>
+<meta name="description" content="See what a home dashboard looks like on your own tablet. Sample data only.">
+<meta name="theme-color" content="#16181c">
+<style>
+  html, body { margin: 0; height: 100%; background: #16181c; overflow: hidden; font-family: Roboto, Arial, sans-serif; }
+  .wrap { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; }
+  img { max-width: 100%; max-height: 100%; display: block; }
+  .tip { position: absolute; left: 50%; bottom: 14px; -webkit-transform: translateX(-50%); transform: translateX(-50%); background: rgba(0,0,0,.72); color: #fff; font-size: 14px; padding: 8px 14px; border-radius: 18px; white-space: nowrap; -webkit-transition: opacity 1s; transition: opacity 1s; }
+  .tip a { color: #ffb38a; }
+</style>
+</head>
+<body>
+<div class="wrap"><img src="dashboard.jpg" alt="Example home dashboard showing weather, calendar, chores, a Christmas countdown, a fact of the day and radio buttons"></div>
+<div class="tip" id="tip">Example with sample data &middot; tap for full screen &middot; <a href="/">how to make one</a></div>
+<script>
+(function () {
+  var tip = document.getElementById("tip");
+  setTimeout(function () { tip.style.opacity = "0"; }, 6000);
+  function goFull(e) {
+    if (e && e.target && e.target.tagName === "A") return;
+    var d = document, el = d.documentElement;
+    if (d.fullscreenElement || d.webkitFullscreenElement) return;
+    var r = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
+    if (r) { try { r.call(el); } catch (x) {} }
+    tip.style.opacity = "0";
+  }
+  document.addEventListener("click", goFull, true);
+})();
+</script>
+<script data-goatcounter="https://homedash.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
