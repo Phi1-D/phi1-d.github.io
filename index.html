@@ -37,19 +37,32 @@
   /* Top bar */
   .top { position: sticky; top: 0; z-index: 10; background: rgba(246,241,233,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
   .top .wrap { display: flex; align-items: center; gap: 16px; height: 56px; }
-  .logo { font-weight: 800; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-  .logo span.dot { width: 26px; height: 20px; border-radius: 5px; background: var(--dark); position: relative; }
-  .logo span.dot::after { content: ""; position: absolute; inset: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--blue) 0 45%, var(--gold) 45% 100%); }
-  .top nav { margin-left: auto; display: flex; gap: 18px; font-size: 15px; }
+  .logo { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 9px; }
+  .logo svg { display: block; }
+  .top nav { margin-left: auto; display: flex; align-items: center; gap: 22px; font-size: 15px; line-height: 1; }
   .top nav a { color: var(--muted); text-decoration: none; }
   .top nav a:hover { color: var(--ink); }
-  .top .cta-sm { background: var(--dark); color: #fff !important; padding: 7px 14px; border-radius: 999px; }
+  .top .cta-sm { background: var(--dark); color: #fff !important; padding: 10px 16px; border-radius: 999px; }
   @media (max-width: 720px) { .top nav a:not(.cta-sm) { display: none; } }
 
   /* Hero */
   .hero { padding: 48px 0 40px; }
-  .hero h1 { font-size: clamp(36px, 6.4vw, 60px); font-weight: 800; letter-spacing: -0.025em; max-width: 14ch; }
-  .hero .lede { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); max-width: 46ch; margin: 18px 0 26px; }
+  .hero h1 { font-size: clamp(34px, 5.6vw, 58px); font-weight: 800; letter-spacing: -0.025em; text-wrap: balance; }
+  .hero-row { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; margin-top: 18px; }
+  .hero .lede { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); margin: 0 0 16px; }
+  .bubbles { display: grid; gap: 12px; }
+  .bubble { border-radius: 18px; padding: 18px 20px; text-decoration: none; display: block; }
+  .bubble b { display: block; font-size: 17px; margin-bottom: 4px; }
+  .bubble span { display: block; font-size: 14.5px; line-height: 1.45; }
+  .bubble em { display: inline-block; margin-top: 10px; font-style: normal; font-weight: 700; font-size: 15px; }
+  .bubble.dfy { background: var(--dark); color: #fff; }
+  .bubble.dfy span { color: #c9d0d7; }
+  .bubble.dfy em { color: var(--gold); }
+  .bubble.pdf { background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
+  .bubble.pdf span { color: var(--muted); }
+  .bubble.pdf em { color: var(--blue); }
+  .bubble:hover { transform: translateY(-1px); }
+  @media (max-width: 860px) { .hero-row { grid-template-columns: 1fr; } }
   .byline { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
   .btns { display: flex; flex-wrap: wrap; gap: 12px; }
   .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 999px; font-weight: 700; font-size: 16px; text-decoration: none; border: 2px solid var(--dark); color: var(--dark); background: transparent; cursor: pointer; }
@@ -160,7 +173,7 @@
 
 <div class="top">
   <div class="wrap">
-    <a class="logo" href="#"><span class="dot"></span>Home Dashboard</a>
+    <a class="logo" href="#"><svg width="22" height="16" viewBox="0 0 22 16" aria-hidden="true"><rect x="1" y="1" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="5" width="5" height="6" rx="1" fill="currentColor"/><rect x="12" y="5" width="5" height="2.5" rx="1" fill="currentColor" opacity=".45"/><rect x="12" y="8.5" width="5" height="2.5" rx="1" fill="currentColor" opacity=".45"/></svg>Home Dashboard</a>
     <nav>
       <a href="#try">Try it</a>
       <a href="#need">What you need</a>
@@ -173,82 +186,45 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="kicker">Free guide &middot; Amazon Fire &amp; Android tablets</div>
     <h1>Turn an old tablet into a home dashboard</h1>
-    <p class="lede">Live weather, the family calendar, chores, a countdown, a fact of the day and one-tap radio, on a tablet you already own. Built with an AI assistant, using free services only.</p>
-    <div class="byline">By Philip Daley &middot; November 2026</div>
-    <div class="btns">
-      <a class="btn primary" href="#steps">Read the guide</a>
-      <a class="btn" href="/demo" data-goatcounter-click="hero-demo" data-goatcounter-title="See the demo (hero)">See it on your tablet</a>
-      <a class="btn" href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-hero" data-goatcounter-title="Download PDF (hero)">Download PDF</a>
+    <div class="hero-row">
+      <div>
+        <p class="lede">Live weather, the family calendar, chores, a countdown, a fact of the day and one-tap radio, on an Amazon Fire or Android tablet you already own. Built with an AI assistant, using free services only.</p>
+        <div class="byline">By Philip Daley &middot; November 2026</div>
+        <div class="btns">
+          <a class="btn primary" href="#steps">Read the guide</a>
+          <a class="btn" href="#try" data-goatcounter-click="hero-try" data-goatcounter-title="Try it on your tablet (hero)">Try it on your tablet</a>
+        </div>
+      </div>
+      <div class="bubbles">
+        <a class="bubble dfy" href="https://tally.so/r/6DKOrk" target="_blank" rel="noopener" data-goatcounter-click="interest-hero" data-goatcounter-title="Register interest (hero)"><b>Rather have it done for you?</b><span>I'm exploring a done-for-you version, set up reliably and securely, with nothing technical to manage.</span><em>Register interest &rarr;</em></a>
+        <a class="bubble pdf" href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-hero" data-goatcounter-title="Download PDF (hero)"><b>Prefer a PDF?</b><span>The full guide in 7 pages, to read offline or print.</span><em>Download PDF &darr;</em></a>
+      </div>
     </div>
     <div class="shot"><img src="img/cover.jpg" width="1600" height="938" alt="The home dashboard: clock, weather and forecast on the left; today's and tomorrow's calendar, a Christmas countdown, a fact of the day and radio buttons on the right"></div>
     <div class="caption">The finished dashboard, shown with sample data.</div>
-    <div class="stats">
-      <div class="stat"><b>£0</b><span>running cost</span></div>
-      <div class="stat"><b>A weekend</b><span>for your first one</span></div>
-      <div class="stat"><b>5</b><span>live feeds</span></div>
-      <div class="stat"><b>30 min</b><span>between updates</span></div>
-    </div>
   </div>
 </header>
 
 <section id="try">
   <div class="wrap">
-    <div class="kicker">Try it now, nothing to set up</div>
-    <h2>See it on your own tablet first</h2>
-    <p class="narrow">Open either of these in your tablet's web browser, then tap the screen to go full screen.</p>
+    <h2>Try it on your tablet</h2>
+    <p>Open either link in your tablet's browser, then tap the screen to go full screen.</p>
     <div class="try">
       <a class="card tcard" href="/demo" data-goatcounter-click="try-demo" data-goatcounter-title="Try: demo">
-        <span class="tag">Preview</span>
+        <span class="tag">Example</span>
         <div class="url">phi1-d.github.io/<em>demo</em></div>
-        <p>The home dashboard from this guide, full screen, with sample data. See how it fits your screen before you build anything.</p>
+        <p>The home dashboard from this guide, with sample data.</p>
         <span class="go">Open the demo &rarr;</span>
       </a>
       <a class="card tcard" href="/f1" data-goatcounter-click="try-f1" data-goatcounter-title="Try: F1 dashboard">
         <span class="tag f1">Free to keep</span>
         <div class="url">phi1-d.github.io/<em>f1</em></div>
-        <p>A live Grand Prix dashboard: countdown to the next race, session times in UK time, standings and the last podium. Updates itself and needs no personal details.</p>
+        <p>A live Grand Prix dashboard that updates itself.</p>
         <span class="go">Open the F1 dashboard &rarr;</span>
       </a>
     </div>
     <p class="caption" style="text-align:left">Tip: it's <b>phi1</b> with the number one, not the letter L.</p>
-  </div>
-</section>
-
-<section>
-  <div class="wrap two">
-    <div>
-      <div class="kicker">What you'll end up with</div>
-      <h2>A morning check-in for the whole household</h2>
-      <p>A colour, touch-screen dashboard that keeps the household on track each morning, built from a tablet you already own. Nothing needs to be bought: everything runs on free services, and the AI assistant writes the code.</p>
-      <ul class="feat">
-        <li style="--c:var(--green)">Live weather and rain</li>
-        <li style="--c:var(--blue)">Today and tomorrow</li>
-        <li style="--c:var(--blue)">Chores list</li>
-        <li style="--c:var(--gold)">Countdown to Christmas</li>
-        <li style="--c:var(--gold)">Fact of the day</li>
-        <li style="--c:var(--red)">One-tap radio</li>
-      </ul>
-    </div>
-    <figure style="margin:0"><img src="img/fire-in-action.jpg" alt="The dashboard running on an Amazon Fire 7 in a kitchen" loading="lazy"><figcaption class="caption">Running on an Amazon Fire 7 (calendar blurred).</figcaption></figure>
-  </div>
-</section>
-
-<section id="need">
-  <div class="wrap">
-    <div class="kicker">What you'll need</div>
-    <h2>Six things, mostly free</h2>
-    <p class="narrow">Budget a weekend for your first one, and about an hour for each improvement after that. The only cost is your time.</p>
-    <div class="needs">
-      <div class="need" style="--c:var(--dark)"><h3>An old tablet</h3><div class="why">The screen</div><p>An Amazon Fire or Android tablet with a web browser; older models are fine.</p><small>Plus its charger: mount it near a socket and Wi-Fi.</small></div>
-      <div class="need" style="--c:var(--gold)"><h3>An AI assistant</h3><div class="why">Writes and fixes the code</div><p>I used Claude; a paid plan helps on longer sessions.</p></div>
-      <div class="need" style="--c:var(--dark)"><h3>A free GitHub account</h3><div class="why">Hosts it and runs the updates</div><p>No coding knowledge needed; the AI guides you.</p></div>
-      <div class="need" style="--c:var(--blue)"><h3>A calendar link</h3><div class="why">Feeds in the family calendar</div><p>An iCal (.ics) link, which all the main calendars provide.</p><small><b>iCloud:</b> the owner turns on Public Calendar. <b>Google:</b> on a computer, Settings &rarr; Integrate calendar &rarr; Secret address in iCal format. <b>Outlook:</b> Settings &rarr; Shared calendars &rarr; Publish a calendar.</small></div>
-      <div class="need" style="--c:var(--green)"><h3>A free cron-job.org account</h3><div class="why">Triggers an update every 30 minutes</div><p>Recommended: GitHub's own scheduler ran under 10% of the time in my tests.</p></div>
-      <div class="need" style="--c:var(--red)"><h3>Shortcuts or Tasker</h3><div class="why">Pushes a chores list from your notes</div><p>Apple Shortcuts, or an Android automation app such as Tasker.</p><small>Optional: you can edit the chores list on GitHub instead.</small></div>
-    </div>
-    <div class="note"><b>Skill level:</b> comfortable following instructions, copying and pasting, and changing settings. You don't need to write code yourself.</div>
   </div>
 </section>
 
@@ -264,17 +240,53 @@
         <li>It needs to stay plugged in</li>
         <li>No apps to install, and no changes to the tablet itself</li>
       </ul>
-      <p style="margin-top:14px">Not sure? Open <a href="/demo">phi1-d.github.io/demo</a> on it and see.</p>
     </div>
-    <figure style="margin:0"><img src="img/before-after.jpg" alt="Before and after: an unused tablet, then the same tablet as a kitchen dashboard" loading="lazy"><figcaption class="caption">The same Fire tablet, on day 1 and day 4.</figcaption></figure>
+    <figure style="margin:0"><img src="img/day-one.jpg" alt="An early version of the dashboard running on an Amazon Fire 7 on a kitchen worktop" loading="lazy"><figcaption class="caption">An early version, on an Amazon Fire 7.</figcaption></figure>
   </div>
 </section>
 
 <section>
+  <div class="wrap two">
+    <div>
+      <div class="kicker">What you'll end up with</div>
+      <h2>A morning check-in for the whole household</h2>
+      <p>A colour, touch-screen dashboard that keeps the household on track each morning, built from a tablet you already own. Nothing needs to be bought: everything runs on free services, and the AI assistant writes the code.</p>
+      <ul class="feat">
+        <li style="--c:var(--green)">Live weather and rain</li>
+        <li style="--c:var(--blue)">Family calendar</li>
+        <li style="--c:var(--blue)">Chores list</li>
+        <li style="--c:var(--gold)">Countdown to Christmas</li>
+        <li style="--c:var(--gold)">Fact of the day</li>
+        <li style="--c:var(--red)">One-tap radio</li>
+      </ul>
+    </div>
+    <figure style="margin:0"><img src="img/fire-in-action.jpg" alt="The dashboard running on an Amazon Fire 7 in a kitchen" loading="lazy"><figcaption class="caption">Running on an Amazon Fire 7 (calendar blurred).</figcaption></figure>
+  </div>
+</section>
+
+<section id="need">
+  <div class="wrap">
+    <div class="kicker">What you'll need</div>
+    <h2>Six things, mostly free</h2>
+    <p class="narrow">The only cost is your time.</p>
+    <div class="needs">
+      <div class="need" style="--c:var(--dark)"><h3>An old tablet</h3><div class="why">The screen</div><p>An Amazon Fire or Android tablet with a web browser; older models are fine.</p><small>Plus its charger: mount it near a socket and Wi-Fi.</small></div>
+      <div class="need" style="--c:var(--gold)"><h3>An AI assistant</h3><div class="why">Writes and fixes the code</div><p>I used Claude; a paid plan helps on longer sessions.</p></div>
+      <div class="need" style="--c:var(--dark)"><h3>A free GitHub account</h3><div class="why">Hosts it and runs the updates</div><p>No coding knowledge needed; the AI guides you.</p></div>
+      <div class="need" style="--c:var(--blue)"><h3>A calendar link</h3><div class="why">Feeds in the family calendar</div><p>An iCal (.ics) link, which all the main calendars provide.</p><small><b>iCloud:</b> the owner turns on Public Calendar. <b>Google:</b> on a computer, Settings &rarr; Integrate calendar &rarr; Secret address in iCal format. <b>Outlook:</b> Settings &rarr; Shared calendars &rarr; Publish a calendar.</small></div>
+      <div class="need" style="--c:var(--green)"><h3>A free cron-job.org account</h3><div class="why">Triggers an update every 30 minutes</div><p>Recommended: GitHub's own scheduler ran under 10% of the time in my tests.</p></div>
+      <div class="need" style="--c:var(--red)"><h3>Shortcuts or Tasker</h3><div class="why">Pushes a chores list from your notes</div><p>Apple Shortcuts, or an Android automation app such as Tasker.</p><small>Optional: you can edit the chores list on GitHub instead.</small></div>
+    </div>
+    <div class="note"><b>Skill level:</b> comfortable following instructions, copying and pasting, and changing settings. You don't need to write code yourself.</div>
+  </div>
+</section>
+
+
+<section>
   <div class="wrap">
     <div class="kicker">How it works</div>
-    <h2>The tablet does almost no work</h2>
-    <p class="narrow">It just shows a web page and fetches its own weather. Everything else is prepared for it every 30 minutes by free services.</p>
+    <h2>All the work is done before it reaches the tablet</h2>
+    <p>Free services gather and prepare everything every 30 minutes, so the tablet only has to show a web page and fetch its own weather. That&rsquo;s why an old, slow tablet copes perfectly well.</p>
     <div class="diagram"><img src="img/how-it-works.jpg" alt="Diagram: calendar, chores and fact feeds go into a GitHub Actions build, started every 30 minutes by cron-job.org; the build publishes a web page and data file to GitHub Pages, which the tablet shows. Weather and radio go straight to the tablet."></div>
   </div>
 </section>
@@ -330,6 +342,7 @@ How it should work:
 - Update the calendar every 30 minutes (use cron-job.org if GitHub's own scheduler is unreliable)
 - Keep my calendar link in a GitHub secret, never in the code
 - My tablet's browser may be old, so avoid modern-only web features and test at its screen size
+- Make the page update itself when a new version is published, without dropping out of full screen
 
 I've attached a picture of the look I'm after: [attach an image, or delete this line]</pre>
     </div>
@@ -337,7 +350,7 @@ I've attached a picture of the look I'm after: [attach an image, or delete this 
 
     <div class="prompt">
       <header><h3>2. Refining it</h3><button class="copy" data-p="p2">Copy</button></header>
-<pre id="p2">Here's a photo of the dashboard on the tablet. [Describe the problem, e.g. the radio buttons run off the bottom / the weather text is too small / it's too bright at night.] Fix only that, and keep everything else the same.</pre>
+<pre id="p2">Here's a photo of the dashboard on the tablet. [Describe the change you'd like, e.g. make the weather text bigger / add a countdown to our holiday / the radio buttons run off the bottom.] Change only that, and keep everything else the same.</pre>
     </div>
 
     <div class="prompt">
@@ -354,11 +367,10 @@ I've attached a picture of the look I'm after: [attach an image, or delete this 
     <table class="tbl">
       <thead><tr><th>Snag</th><th>What happened</th><th>How to avoid it</th></tr></thead>
       <tbody>
-        <tr><td>Old browsers</td><td>Layout overflowed on the Fire's older browser</td><td>Tell the AI the exact device, and send photos of what it looks like</td></tr>
-        <tr><td>Changes not showing</td><td>The browser kept an old copy</td><td>Add ?v=2 (any new number) to the end of the link; ask the AI to make the page update itself</td></tr>
+        <tr><td>Changes not showing</td><td>The tablet kept showing an old copy of the page</td><td>The starter prompt asks the AI to make the page update itself. If it still happens, send the AI a photo and say what you expected to see</td></tr>
         <tr><td>Data went stale</td><td>GitHub's schedule didn't run on a new account</td><td>Use cron-job.org to trigger updates</td></tr>
         <tr><td>iPhone Shortcut errors</td><td>Menu names differ by iOS version, and variables were typed instead of inserted</td><td>Insert variables from the menu (they turn blue); test one action at a time</td></tr>
-        <tr><td>Dropping out of full screen</td><td>Page updates reset it</td><td>Ask the AI to wrap the dashboard so updates don't exit full screen</td></tr>
+        <tr><td>Dropping out of full screen</td><td>Page updates reset it</td><td>Also covered by the starter prompt; if it happens, tell the AI it drops out of full screen when the page updates</td></tr>
       </tbody>
     </table>
   </div>
@@ -379,23 +391,6 @@ I've attached a picture of the look I'm after: [attach an image, or delete this 
   </div>
 </section>
 
-<section id="interest">
-  <div class="wrap">
-    <div class="interest">
-      <div>
-        <div class="kicker" style="color:#9aa3ad">Rather not build it yourself?</div>
-        <h2>I'm exploring a done-for-you version</h2>
-        <p>Set up for you, reliably and securely, without GitHub accounts, scripts or tokens to manage. If that would interest you, register below. No commitment, and I'll only contact you about this.</p>
-        <a class="btn gold" href="https://tally.so/r/6DKOrk" target="_blank" rel="noopener" data-goatcounter-click="interest-main" data-goatcounter-title="Register interest (main)">Register interest &rarr;</a>
-      </div>
-      <div class="side">
-        <b>Prefer the PDF?</b>
-        <p>The full guide as a 7-page PDF, to read offline or print.</p>
-        <a class="btn" style="margin-top:14px;color:#fff;border-color:#fff" href="home-dashboard-guide.pdf" download data-goatcounter-click="download-pdf-footer" data-goatcounter-title="Download PDF (footer)">Download PDF</a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section id="privacy">
   <div class="wrap narrow privacy">
