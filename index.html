@@ -64,6 +64,9 @@
   .bubble:hover { transform: translateY(-1px); }
   @media (max-width: 860px) { .hero-row { grid-template-columns: 1fr; } }
   .byline { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+  .byline a { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line); }
+  .byline .time { display: inline-block; background: var(--gold-bg); color: #6d5410; font-weight: 700; padding: 2px 10px; border-radius: 999px; margin-left: 6px; }
+  .print-only { display: none; }
   .btns { display: flex; flex-wrap: wrap; gap: 12px; }
   .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 999px; font-weight: 700; font-size: 16px; text-decoration: none; border: 2px solid var(--dark); color: var(--dark); background: transparent; cursor: pointer; }
   .btn.primary { background: var(--dark); color: #fff; }
@@ -167,6 +170,34 @@
   footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 18px; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--dark); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 15px; opacity: 0; transition: .25s; pointer-events: none; }
   .toast.on { opacity: 1; transform: translateX(-50%); }
+  @media print {
+    @page { size: A4; margin: 14mm 13mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10.5pt; background: #fff; }
+    .wrap, .narrow { max-width: none; padding: 0; }
+    .top, .bubbles, .btns, .copy, .toast, footer, #privacy, .screen-only { display: none !important; }
+    .print-only { display: block; }
+    .hero { padding: 0 0 10px; }
+    .hero h1 { font-size: 30pt; }
+    .hero-row { grid-template-columns: 1fr; margin-top: 10px; }
+    .shot { margin-top: 14px; box-shadow: none; padding: 12px; border-radius: 18px; }
+    section { padding: 18px 0; }
+    section + section { border-top: 1px solid var(--line); }
+    h2 { font-size: 19pt; break-after: avoid; }
+    .kicker { break-after: avoid; }
+    .card, .need, .prompt, .steps li, .safety li, .tbl tr, figure, .note, .checks, .diagram { break-inside: avoid; }
+    .prompt pre { max-height: none; overflow: visible; font-size: 9pt; }
+    .two { grid-template-columns: 1.1fr 1fr; gap: 20px; }
+    .try { grid-template-columns: 1fr 1fr; }
+    .needs { grid-template-columns: repeat(3, 1fr); }
+    .tbl { display: table; } .tbl thead { display: table-header-group; } .tbl tr { display: table-row; } .tbl td { display: table-cell; }
+    .page-break { break-before: page; }
+    #try, .two, section:has(.diagram) { break-inside: avoid; }
+    .shot { width: 80%; margin-left: auto; margin-right: auto; }
+    #prompts, #need { break-before: page; }
+    .print-end { margin-top: 18px; padding: 16px 18px; border-radius: 14px; background: var(--dark); color: #fff; }
+    .print-end p { margin: 0 0 4px; color: #c9d0d7; } .print-end b { color: #fff; }
+  }
 </style>
 </head>
 <body>
@@ -190,7 +221,7 @@
     <div class="hero-row">
       <div>
         <p class="lede">Live weather, the family calendar, chores, a countdown, a fact of the day and one-tap radio, on an Amazon Fire or Android tablet you already own. Built with an AI assistant, using free services only.</p>
-        <div class="byline">By Philip Daley &middot; November 2026</div>
+        <div class="byline">By <a href="https://www.linkedin.com/in/philipdaley/" target="_blank" rel="noopener" data-goatcounter-click="linkedin-byline" data-goatcounter-title="LinkedIn (byline)">Philip Daley</a> &middot; November 2026 <span class="time">About 2 hours of hands-on time</span></div>
         <div class="btns">
           <a class="btn primary" href="#steps">Read the guide</a>
           <a class="btn" href="#try" data-goatcounter-click="hero-try" data-goatcounter-title="Try it on your tablet (hero)">Try it on your tablet</a>
@@ -268,7 +299,7 @@
   <div class="wrap">
     <div class="kicker">What you'll need</div>
     <h2>Six things, mostly free</h2>
-    <p class="narrow">The only cost is your time.</p>
+    <p class="narrow">Allow around 2 hours of hands-on time for your first one, plus about 30 minutes if you add a chores list. The only cost is your time.</p>
     <div class="needs">
       <div class="need" style="--c:var(--dark)"><h3>An old tablet</h3><div class="why">The screen</div><p>An Amazon Fire or Android tablet with a web browser; older models are fine.</p><small>Plus its charger: mount it near a socket and Wi-Fi.</small></div>
       <div class="need" style="--c:var(--gold)"><h3>An AI assistant</h3><div class="why">Writes and fixes the code</div><p>I used Claude; a paid plan helps on longer sessions.</p></div>
@@ -407,6 +438,13 @@ I've attached a picture of the look I'm after: [attach an image, or delete this 
     <p>You can ask to see, correct or delete what I hold about you by replying to any email I send, or by messaging me on LinkedIn. If you're unhappy with how I've handled your data, you can complain to the Information Commissioner's Office (ico.org.uk).</p>
   </div>
 </section>
+
+<div class="wrap print-only">
+  <div class="print-end">
+    <p><b>Rather have it done for you?</b> I'm exploring a done-for-you version. Register interest at <b>tally.so/r/6DKOrk</b></p>
+    <p>Online version, with copy buttons for the prompts: <b>phi1-d.github.io</b> &middot; Philip Daley, linkedin.com/in/philipdaley &middot; Built with Claude</p>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
