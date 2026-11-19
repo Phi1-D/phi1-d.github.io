@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Builder (Concept)</title>
+<meta name="description" content="A concept of the done-for-you home dashboard: choose your widgets and sizes, and see them on a tablet.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Design your home dashboard (concept)">
+<meta property="og:description" content="Pick widgets, choose their size and arrange them on your tablet. A concept for a done-for-you home dashboard.">
+<meta property="og:image" content="https://phi1-d.github.io/img/builder.jpg">
+<meta name="theme-color" content="#f6f1e9">
+<style>
+  :root {
+    --bg: #f6f1e9; --paper: #fffdf9; --ink: #2a2622; --muted: #6b635a; --line: #e4d9c8;
+    --dark: #24292f; --blue: #2f6db3; --green: #2e8b57; --red: #c0392b; --gold: #e0b44a; --gold-bg: #fdf3dc;
+    /* tablet (dark theme by default) */
+    --t-bg: #16181c; --t-card: #22262c; --t-ink: #eceae6; --t-mute: #9aa1a9; --t-line: #30353c;
+  }
+  .tab.light { --t-bg: #eef0f3; --t-card: #ffffff; --t-ink: #1f2328; --t-mute: #6b7280; --t-line: #e5e7eb; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  button { font: inherit; cursor: pointer; }
+
+  .bar { display: flex; align-items: center; gap: 14px; padding: 12px 22px; border-bottom: 1px solid var(--line); background: rgba(246,241,233,.94); position: sticky; top: 0; z-index: 5; }
+  .bar .logo { font-weight: 800; display: flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; }
+  .concept { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--gold-bg); color: #7a5c0f; padding: 3px 10px; border-radius: 999px; }
+  .steps { display: flex; gap: 6px; margin-left: auto; font-size: 14px; }
+  .steps span { padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+  .steps span b { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; align-items: center; justify-content: center; background: var(--line); color: var(--ink); font-size: 12px; margin-right: 6px; }
+  .steps span.on { background: var(--dark); color: #fff; }
+  .steps span.on b { background: var(--gold); color: var(--ink); }
+  @media (max-width: 900px) { .steps { display: none; } }
+
+  .wrap { display: grid; grid-template-columns: 300px 1fr 260px; gap: 22px; padding: 22px; max-width: 1500px; margin: 0 auto; align-items: start; }
+  @media (max-width: 1180px) { .wrap { grid-template-columns: 1fr; } .stage { order: -1; } }
+
+  h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+
+  /* Gallery */
+  .search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font: inherit; margin-bottom: 12px; }
+  .gallery { display: grid; gap: 8px; max-height: calc(100vh - 190px); overflow: auto; padding-right: 2px; }
+  @media (max-width: 1180px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); max-height: none; } }
+  .gi { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+  .gi .ic { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: none; color: #fff; }
+  .gi .nm { flex: 1; min-width: 0; }
+  .gi .nm b { display: block; font-size: 14.5px; }
+  .gi .nm small { color: var(--muted); font-size: 12.5px; }
+  .gi .sz { display: flex; gap: 4px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; color: var(--ink); }
+  .chip:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
+  .gi.used { opacity: .55; }
+
+  /* Stage */
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .stage-top { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; flex-wrap: wrap; }
+  .stage-top .cap { font-weight: 700; }
+  .meter { margin-left: auto; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .meter i { display: inline-block; width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .meter i em { display: block; height: 100%; background: var(--green); border-radius: 4px; transition: width .25s; }
+  .seg { display: inline-flex; background: var(--line); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: none; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+  .device { background: #0e0f12; border-radius: 34px; padding: 22px; width: 100%; max-width: 900px; box-shadow: 0 40px 70px -35px rgba(36,41,47,.6); position: relative; }
+  .device::before { content: ""; position: absolute; left: 10px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: #2c3036; }
+  .tab { background: var(--t-bg); border-radius: 12px; aspect-ratio: 16 / 10; padding: 2.2%; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 1.8%; container-type: inline-size; transition: background .3s; }
+  .w { background: var(--t-card); color: var(--t-ink); border-radius: 14px; padding: 3.6cqw 1.8cqw; padding: clamp(8px, 1.6cqw, 18px); overflow: hidden; position: relative; cursor: grab; outline: 3px solid transparent; outline-offset: 2px; transition: outline-color .15s, transform .15s; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .w:hover { outline-color: rgba(224,180,74,.45); }
+  .w.sel { outline-color: var(--gold); }
+  .w.drag { opacity: .4; }
+  .w.over { transform: scale(.97); outline-color: var(--blue); }
+  .w .x { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 14px; line-height: 22px; padding: 0; display: none; }
+  .w.sel .x, .w:hover .x { display: block; }
+  .empty { border: 2px dashed var(--t-line); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--t-mute); font-size: 1.3cqw; }
+
+  /* Widget content: sized relative to the tablet width */
+  .lb { font-size: 1.15cqw; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t-mute); margin-bottom: .6cqw; }
+  .big { font-size: 5.2cqw; font-weight: 300; line-height: 1; letter-spacing: -.02em; }
+  .mid { font-size: 2.4cqw; font-weight: 700; line-height: 1.15; }
+  .t { font-size: 1.45cqw; line-height: 1.35; }
+  .m { color: var(--t-mute); }
+  .row { display: flex; align-items: center; gap: .8cqw; }
+  .ev { display: flex; gap: .9cqw; font-size: 1.4cqw; padding: .45cqw 0; border-bottom: 1px solid var(--t-line); }
+  .ev:last-child { border-bottom: 0; }
+  .ev b { width: 4.6cqw; flex: none; font-variant-numeric: tabular-nums; }
+  .pill { font-size: 1.15cqw; font-weight: 700; padding: .25cqw .8cqw; border-radius: 999px; background: #2f6db3; color: #fff; display: inline-block; margin: 0 .4cqw .4cqw 0; }
+  .fc { display: flex; justify-content: space-between; margin-top: auto; }
+  .fc div { text-align: center; font-size: 1.25cqw; }
+  .fc b { display: block; font-size: 1.45cqw; }
+  .ck { display: flex; align-items: center; gap: .8cqw; font-size: 1.4cqw; padding: .35cqw 0; }
+  .ck i { width: 1.5cqw; height: 1.5cqw; border: 2px solid var(--t-mute); border-radius: .4cqw; flex: none; }
+  .ck.done { color: var(--t-mute); text-decoration: line-through; }
+  .ck.done i { background: var(--green); border-color: var(--green); }
+  .st { display: grid; grid-template-columns: 1fr 1fr; gap: .6cqw; margin-top: auto; }
+  .st span { font-size: 1.2cqw; font-weight: 600; text-align: center; padding: .7cqw .3cqw; border-radius: .8cqw; border: 1px solid var(--t-line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st span.on { background: var(--green); border-color: var(--green); color: #fff; }
+  .bar2 { height: .7cqw; border-radius: .35cqw; background: var(--t-line); overflow: hidden; margin-top: .8cqw; }
+  .bar2 em { display: block; height: 100%; background: var(--gold); }
+  .photo { position: absolute; inset: 0; background: linear-gradient(180deg, #f4b688 0%, #e98d6b 35%, #9b5f7c 62%, #2d3f63 100%); }
+  .photo::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: #233150; clip-path: polygon(0 45%, 18% 20%, 34% 50%, 52% 10%, 70% 46%, 86% 24%, 100% 40%, 100% 100%, 0 100%); }
+  .photo::after { content: ""; position: absolute; width: 12%; aspect-ratio: 1; border-radius: 50%; background: #ffe2b5; left: 60%; top: 28%; }
+  .photo-cap { position: relative; z-index: 1; margin-top: auto; font-size: 1.3cqw; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+  .ctr { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+
+  .stage-note { font-size: 13px; color: var(--muted); text-align: center; max-width: 640px; }
+
+  /* Inspector */
+  .insp .none { color: var(--muted); font-size: 14px; }
+  .insp h3 { margin: 0 0 4px; font-size: 18px; }
+  .insp p { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+  .opt { margin-bottom: 14px; }
+  .opt label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .sizes { display: flex; gap: 6px; }
+  .sizes button { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 4px; font-weight: 700; font-size: 13px; }
+  .sizes button small { display: block; font-weight: 500; color: var(--muted); font-size: 11px; }
+  .sizes button.on { background: var(--dark); color: #fff; border-color: var(--dark); }
+  .sizes button.on small { color: #c9d0d7; }
+  .sizes button:disabled { opacity: .35; cursor: not-allowed; }
+  .act { display: flex; gap: 6px; }
+  .act button { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px; font-size: 13px; font-weight: 600; }
+  .act button.rm { color: var(--red); }
+  .sw { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .sw:first-of-type { border-top: 0; }
+  .tog { width: 38px; height: 22px; border-radius: 11px; background: var(--line); border: 0; position: relative; padding: 0; flex: none; }
+  .tog::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .tog.on { background: var(--green); }
+  .tog.on::after { left: 19px; }
+  .cta { display: block; text-align: center; text-decoration: none; background: var(--dark); color: #fff; font-weight: 700; padding: 13px; border-radius: 12px; margin-top: 14px; }
+  .cta small { display: block; font-weight: 500; color: #c9d0d7; font-size: 12.5px; margin-top: 2px; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(20px); background: var(--dark); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: .25s; pointer-events: none; z-index: 9; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
+  .side { display: grid; gap: 16px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a class="logo" href="/"><svg width="22" height="16" viewBox="0 0 22 16" aria-hidden="true"><rect x="1" y="1" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="5" width="5" height="6" rx="1" fill="currentColor"/><rect x="12" y="5" width="5" height="2.5" rx="1" fill="currentColor" opacity=".45"/><rect x="12" y="8.5" width="5" height="2.5" rx="1" fill="currentColor" opacity=".45"/></svg>Home Dashboard</a>
+  <span class="concept">Concept preview</span>
+  <div class="steps"><span class="on"><b>1</b>Choose widgets</span><span><b>2</b>Connect calendar</span><span><b>3</b>Pair your tablet</span></div>
+</div>
+
+<div class="wrap">
+  <aside class="panel">
+    <h2>Widgets</h2>
+    <input class="search" id="q" type="search" placeholder="Search widgets" aria-label="Search widgets">
+    <div class="gallery" id="gallery"></div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-top">
+      <span class="cap">Your tablet</span>
+      <div class="seg" id="theme"><button data-v="dark" class="on">Dark</button><button data-v="light">Light</button></div>
+      <div class="meter"><span id="used">0 of 12 spaces</span><i><em id="usedbar"></em></i></div>
+    </div>
+    <div class="device"><div class="tab" id="tab"></div></div>
+    <div class="stage-note">Tap a widget to resize or remove it. Drag widgets to swap their places. Add more from the list. Everything shown is sample data.</div>
+  </main>
+
+  <div class="side">
+    <section class="panel insp" id="insp"><h2>Selected widget</h2><div class="none">Tap a widget on the tablet to change its size or remove it.</div></section>
+    <section class="panel">
+      <h2>Display</h2>
+      <div class="sw">Dim the screen at night<button class="tog on" data-k="dim" aria-label="Dim at night"></button></div>
+      <div class="sw">Turn off when you're out<button class="tog" data-k="away" aria-label="Turn off when out"></button></div>
+      <div class="sw">Rotate photos every hour<button class="tog on" data-k="photos" aria-label="Rotate photos"></button></div>
+      <a class="cta" id="cta" href="https://tally.so/r/6DKOrk" target="_blank" rel="noopener" data-goatcounter-click="builder-interest" data-goatcounter-title="Builder: register interest">Like this? Register interest<small>No commitment &middot; under a minute</small></a>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var COLS = 4, ROWS = 3;
+  var SIZES = { S: [1, 1], M: [2, 1], L: [2, 2] };
+  var SIZE_NAME = { S: "Small", M: "Medium", L: "Large" };
+  var ICON = {
+    clock: '<circle cx="12" cy="12" r="8" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>',
+    weather: '<circle cx="9" cy="10" r="4" fill="#fff"/><path d="M7 18h10a3.5 3.5 0 0 0 0-7 4.5 4.5 0 0 0-8.6 1.6A3 3 0 0 0 7 18z" fill="#fff" opacity=".85"/>',
+    calendar: '<rect x="4" y="6" width="16" height="14" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path d="M4 10h16M9 4v4M15 4v4" stroke="#fff" stroke-width="2"/>',
+    chores: '<path d="M5 7l2 2 3-3M5 15l2 2 3-3M13 8h6M13 16h6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>',
+    countdown: '<path d="M7 4h10M7 20h10M8 4c0 5 8 5 8 8s-8 3-8 8M16 4c0 5-8 5-8 8" stroke="#fff" stroke-width="2" fill="none"/>',
+    fact: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" stroke="#fff" stroke-width="2" fill="none"/>',
+    radio: '<rect x="3" y="8" width="18" height="12" rx="2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="2.5" fill="#fff"/><path d="M6 12h4M6 16h4M7 8l9-4" stroke="#fff" stroke-width="2"/>',
+    bins: '<path d="M6 7h12l-1 13H7L6 7zM4 7h16M10 4h4" stroke="#fff" stroke-width="2" fill="none"/>',
+    racing: '<path d="M5 20V4M5 4h12l-2 4 2 4H5" stroke="#fff" stroke-width="2" fill="none"/>',
+    birthdays: '<path d="M5 20h14v-7H5v7zM8 13v-3M12 13v-3M16 13v-3" stroke="#fff" stroke-width="2" fill="none"/><circle cx="8" cy="7" r="1.3" fill="#fff"/><circle cx="12" cy="7" r="1.3" fill="#fff"/><circle cx="16" cy="7" r="1.3" fill="#fff"/>',
+    photos: '<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#fff" stroke-width="2" fill="none"/>',
+    football: '<circle cx="12" cy="12" r="8" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 8l3 2.2-1.2 3.6h-3.6L9 10.2z" fill="#fff"/>',
+    travel: '<rect x="5" y="4" width="14" height="13" rx="3" fill="none" stroke="#fff" stroke-width="2"/><path d="M5 11h14M8 20l2-3M16 20l-2-3" stroke="#fff" stroke-width="2"/>'
+  };
+  var CATALOG = [
+    { id: "clock", name: "Clock", desc: "Time and date", color: "#24292f", sizes: "SM" },
+    { id: "weather", name: "Weather", desc: "Now, rain and forecast", color: "#2e8b57", sizes: "SML" },
+    { id: "calendar", name: "Family calendar", desc: "Today and tomorrow", color: "#2f6db3", sizes: "ML" },
+    { id: "chores", name: "Chores", desc: "From your notes app", color: "#7b5ea7", sizes: "ML" },
+    { id: "countdown", name: "Countdown", desc: "Christmas, holidays, birthdays", color: "#c58b12", sizes: "SM" },
+    { id: "fact", name: "Fact of the day", desc: "Animals, food, countries", color: "#d0743c", sizes: "ML" },
+    { id: "radio", name: "Radio", desc: "One-tap stations", color: "#c0392b", sizes: "ML" },
+    { id: "bins", name: "Bin day", desc: "Which bins go out, and when", color: "#4a7c59", sizes: "SM" },
+    { id: "birthdays", name: "Birthdays", desc: "Coming up soon", color: "#b5517a", sizes: "SM" },
+    { id: "racing", name: "Grand Prix", desc: "Next race countdown", color: "#e4572e", sizes: "SM" },
+    { id: "football", name: "Football", desc: "Your team's next match", color: "#1f7a8c", sizes: "SM" },
+    { id: "travel", name: "School run", desc: "Traffic and leave-by time", color: "#5b6b7a", sizes: "SM" },
+    { id: "photos", name: "Family photos", desc: "A rotating photo frame", color: "#8a6d5b", sizes: "ML" }
+  ];
+  var byId = {}; CATALOG.forEach(function (c) { byId[c.id] = c; });
+
+  var layout = [
+    { id: "clock", size: "M" }, { id: "weather", size: "L" }, { id: "calendar", size: "L" },
+    { id: "countdown", size: "S" }, { id: "bins", size: "S" }
+  ];
+  var sel = -1;
+  var tab = document.getElementById("tab");
+
+  function cloud() { return '<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="9" cy="10" r="4" fill="#f2c14e"/><path d="M7 18h10a3.5 3.5 0 0 0 0-7 4.5 4.5 0 0 0-8.6 1.6A3 3 0 0 0 7 18z" fill="#cfd6de"/></svg>'; }
+
+  function content(id, s) {
+    switch (id) {
+      case "clock":
+        return s === "S" ? '<div class="ctr"><div class="big" style="font-size:4.2cqw">07:42</div><div class="t m">Mon 9 Nov</div></div>'
+          : '<div class="ctr"><div class="big">07:42</div><div class="mid" style="font-weight:500;margin-top:.6cqw">Monday 9 November</div></div>';
+      case "weather":
+        var head = '<div class="row"><div style="width:' + (s === "S" ? 4 : 5) + 'cqw;height:' + (s === "S" ? 4 : 5) + 'cqw">' + cloud() + '</div><div class="big"' + (s === "S" ? ' style="font-size:4cqw"' : '') + '>9&deg;</div></div>';
+        if (s === "S") return '<div class="ctr">' + head + '<div class="t m">Coventry</div></div>';
+        var m = '<div class="lb">Weather &middot; Coventry</div>' + head + '<div class="t" style="margin-top:.6cqw">Partly cloudy &middot; wind 12 mph</div><div class="t m">Rain 20% at 3pm &middot; high 11&deg;, low 5&deg;</div>';
+        if (s === "M") return m;
+        return m + '<div class="t m" style="margin-top:.6cqw">Sunrise 07:16 &middot; Sunset 16:22</div><div class="fc"><div><b>Tue</b>11&deg; / 5&deg;</div><div><b>Wed</b>10&deg; / 6&deg;</div><div><b>Thu</b>9&deg; / 4&deg;</div><div><b>Fri</b>8&deg; / 1&deg;</div></div>';
+      case "calendar":
+        var today = '<div class="lb">Today</div><div><span class="pill">Bins: blue recycling</span><span class="pill" style="background:#7b5ea7">PE kit</span></div><div class="ev"><b>08:30</b>School run</div><div class="ev"><b>16:00</b>Swimming lessons</div>' + (s === "L" ? '<div class="ev"><b>18:30</b>Football training</div>' : '');
+        if (s === "M") return today;
+        return today + '<div class="lb" style="margin-top:1cqw">Tomorrow</div><div class="ev"><b>09:30</b>Dog to the groomer</div><div class="ev"><b>15:30</b>Dentist check-ups</div><div class="ev"><b>19:00</b>Parents\' evening</div>';
+      case "chores":
+        var items = [["Empty the dishwasher", 1], ["Feed the dog", 1], ["Tidy bedrooms", 0], ["Hoover the stairs", 0], ["Water the plants", 0], ["Put the bins out", 0]];
+        var h = '<div class="lb">Chores</div>';
+        for (var i = 0; i < (s === "L" ? 6 : 3); i++) h += '<div class="ck' + (items[i][1] ? " done" : "") + '"><i></i>' + items[i][0] + '</div>';
+        return h;
+      case "countdown":
+        return s === "S" ? '<div class="ctr" style="text-align:center"><div class="big" style="font-size:4.4cqw;font-weight:700;color:#e0b44a">46</div><div class="t">sleeps till Christmas</div></div>'
+          : '<div class="ctr"><div class="row"><div class="big" style="font-weight:700;color:#e0b44a">46</div><div class="mid">sleeps till<br>Christmas</div></div><div class="bar2"><em style="width:87%"></em></div></div>';
+      case "fact":
+        return '<div class="lb">Did you know?</div><div class="' + (s === "L" ? "mid" : "t") + '" style="' + (s === "L" ? "font-weight:600" : "font-size:1.7cqw") + '">A group of flamingos is called a flamboyance.</div>' + (s === "L" ? '<div class="t m" style="margin-top:auto">Animals &middot; a new fact every day</div>' : '');
+      case "radio":
+        var st = s === "L" ? ["Radio 4", "Radio 1", "Local BBC", "4 Extra", "Classic FM", "Capital XTRA", "LBC News", "Fun Kids"] : ["Radio 4", "Radio 1", "Classic FM", "Fun Kids"];
+        var r = '<div class="lb">Radio' + (s === "L" ? ' &middot; playing Classic FM' : '') + '</div><div class="st"' + (s === "L" ? ' style="grid-template-columns:1fr 1fr 1fr 1fr"' : '') + '>';
+        st.forEach(function (n) { r += '<span class="' + (n === "Classic FM" ? "on" : "") + '">' + n + '</span>'; });
+        return r + "</div>";
+      case "bins":
+        return s === "S" ? '<div class="ctr"><div class="lb">Bin day</div><div class="mid" style="color:#5aa0e8">Blue</div><div class="t">out tonight</div></div>'
+          : '<div class="ctr"><div class="lb">Bin day &middot; Tuesday</div><div class="row"><span class="pill">Blue recycling</span><span class="pill" style="background:#2e8b57">Green garden</span></div><div class="t m">Put out tonight. Black bin next week.</div></div>';
+      case "birthdays":
+        return s === "S" ? '<div class="ctr"><div class="lb">Birthdays</div><div class="mid">Gran</div><div class="t m">in 3 days</div></div>'
+          : '<div class="lb">Birthdays</div><div class="ev"><b>Thu</b>Gran (80!)</div><div class="ev"><b>28 Nov</b>Uncle Rob</div>';
+      case "racing":
+        return s === "S" ? '<div class="ctr"><div class="lb">Next race</div><div class="mid">3d 12h</div><div class="t m">Las Vegas</div></div>'
+          : '<div class="lb">Next race &middot; Las Vegas</div><div class="mid">3d 12h 04m</div><div class="t m">Qualifying Sat 04:00 &middot; Race Sun 04:00</div>';
+      case "football":
+        return s === "S" ? '<div class="ctr"><div class="lb">Next match</div><div class="mid">Sat 3pm</div><div class="t m">Home</div></div>'
+          : '<div class="lb">Your team &middot; next match</div><div class="mid">Saturday, 3pm</div><div class="t m">Home &middot; last result: won 2&ndash;1</div>';
+      case "travel":
+        return s === "S" ? '<div class="ctr"><div class="lb">School run</div><div class="mid">12 min</div><div class="t m">leave by 08:25</div></div>'
+          : '<div class="lb">School run</div><div class="mid">12 minutes</div><div class="t m">Light traffic &middot; leave by 08:25</div>';
+      case "photos":
+        return '<div class="photo"></div><div class="photo-cap">Summer holiday &middot; 2026</div>';
+    }
+    return "";
+  }
+
+  // Place widgets in order, top-left first, like phone home-screen widgets.
+  function pack() {
+    var grid = [], placed = [], used = 0;
+    for (var r = 0; r < ROWS; r++) grid.push([0, 0, 0, 0]);
+    layout.forEach(function (w, idx) {
+      var d = SIZES[w.size], spot = null;
+      for (var r = 0; r <= ROWS - d[1] && !spot; r++) for (var c = 0; c <= COLS - d[0] && !spot; c++) {
+        var ok = true;
+        for (var y = 0; y < d[1] && ok; y++) for (var x = 0; x < d[0] && ok; x++) if (grid[r + y][c + x]) ok = false;
+        if (ok) spot = [r, c];
+      }
+      if (spot) {
+        for (var y = 0; y < d[1]; y++) for (var x = 0; x < d[0]; x++) grid[spot[0] + y][spot[1] + x] = 1;
+        used += d[0] * d[1];
+      }
+      placed.push(spot);
+    });
+    return { placed: placed, grid: grid, used: used };
+  }
+  function fits(test) { var save = layout; layout = test; var p = pack(); layout = save; return p.placed.every(Boolean); }
+
+  function render() {
+    var p = pack(), h = "";
+    layout.forEach(function (w, i) {
+      var s = p.placed[i]; if (!s) return;
+      var d = SIZES[w.size];
+      h += '<div class="w' + (i === sel ? " sel" : "") + '" draggable="true" data-i="' + i + '" style="grid-column:' + (s[1] + 1) + " / span " + d[0] + ";grid-row:" + (s[0] + 1) + " / span " + d[1] + '">' + content(w.id, w.size) + '<button class="x" data-rm="' + i + '" aria-label="Remove">&times;</button></div>';
+    });
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) if (!p.grid[r][c]) h += '<div class="empty" style="grid-column:' + (c + 1) + ";grid-row:" + (r + 1) + '">+</div>';
+    tab.innerHTML = h;
+    document.getElementById("used").textContent = p.used + " of 12 spaces used";
+    document.getElementById("usedbar").style.width = (100 * p.used / 12) + "%";
+    renderGallery(); renderInspector();
+  }
+
+  function renderGallery() {
+    var q = document.getElementById("q").value.toLowerCase(), h = "";
+    CATALOG.forEach(function (c) {
+      if (q && (c.name + " " + c.desc).toLowerCase().indexOf(q) < 0) return;
+      var inUse = layout.some(function (w) { return w.id === c.id; });
+      h += '<div class="gi' + (inUse ? " used" : "") + '"><div class="ic" style="background:' + c.color + '"><svg width="22" height="22" viewBox="0 0 24 24">' + ICON[c.id] + '</svg></div><div class="nm"><b>' + c.name + "</b><small>" + (inUse ? "On your tablet" : c.desc) + '</small></div><div class="sz">';
+      c.sizes.split("").forEach(function (s) { h += '<button class="chip" data-add="' + c.id + '" data-size="' + s + '" title="Add ' + SIZE_NAME[s].toLowerCase() + '">' + s + "</button>"; });
+      h += "</div></div>";
+    });
+    document.getElementById("gallery").innerHTML = h || '<div class="m" style="padding:8px">No widgets match.</div>';
+  }
+
+  function renderInspector() {
+    var el = document.getElementById("insp");
+    if (sel < 0 || !layout[sel]) { el.innerHTML = '<h2>Selected widget</h2><div class="none">Tap a widget on the tablet to change its size or remove it.</div>'; return; }
+    var w = layout[sel], c = byId[w.id], h = '<h2>Selected widget</h2><h3>' + c.name + "</h3><p>" + c.desc + '</p><div class="opt"><label>Size</label><div class="sizes">';
+    "SML".split("").forEach(function (s) {
+      var avail = c.sizes.indexOf(s) >= 0, test = layout.map(function (x, i) { return i === sel ? { id: x.id, size: s } : x; });
+      var ok = avail && (s === w.size || fits(test)), d = SIZES[s];
+      h += '<button data-size-sel="' + s + '"' + (s === w.size ? ' class="on"' : "") + (ok ? "" : " disabled") + ">" + SIZE_NAME[s] + "<small>" + (avail ? d[0] + " &times; " + d[1] : "n/a") + "</small></button>";
+    });
+    h += '</div></div><div class="opt"><label>Position</label><div class="act"><button data-mv="-1">&larr; Earlier</button><button data-mv="1">Later &rarr;</button></div></div><div class="act"><button class="rm" data-rm="' + sel + '">Remove widget</button></div>';
+    el.innerHTML = h;
+  }
+
+  var toastT;
+  function toast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("on"); }, 2600); }
+  function track(path) { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, event: true }); }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("button, .w, .empty");
+    if (!t) return;
+    if (t.dataset.add) {
+      var cand = layout.concat([{ id: t.dataset.add, size: t.dataset.size }]);
+      if (!fits(cand)) return toast("No room for that size. Make a widget smaller or remove one.");
+      layout = cand; sel = layout.length - 1; track("builder-add-" + t.dataset.add + "-" + t.dataset.size); render(); return;
+    }
+    if (t.dataset.rm !== undefined) { layout.splice(+t.dataset.rm, 1); sel = -1; render(); e.stopPropagation(); return; }
+    if (t.dataset.sizeSel) { layout[sel].size = t.dataset.sizeSel; render(); return; }
+    if (t.dataset.mv) {
+      var j = sel + (+t.dataset.mv); if (j < 0 || j >= layout.length) return;
+      var test = layout.slice(); var tmp = test[sel]; test[sel] = test[j]; test[j] = tmp;
+      if (!fits(test)) return toast("That move doesn't fit. Try resizing first.");
+      layout = test; sel = j; render(); return;
+    }
+    if (t.classList.contains("w")) { sel = +t.dataset.i === sel ? -1 : +t.dataset.i; render(); return; }
+    if (t.classList.contains("empty")) { toast("Pick a widget from the list to fill this space."); return; }
+    if (t.dataset.v) { [].forEach.call(t.parentNode.children, function (b) { b.classList.toggle("on", b === t); }); tab.classList.toggle("light", t.dataset.v === "light"); return; }
+    if (t.classList.contains("tog")) { t.classList.toggle("on"); return; }
+  });
+  document.getElementById("q").addEventListener("input", renderGallery);
+
+  // Drag to swap places
+  var dragI = -1;
+  tab.addEventListener("dragstart", function (e) { var w = e.target.closest(".w"); if (!w) return; dragI = +w.dataset.i; w.classList.add("drag"); e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", dragI); } catch (x) {} });
+  tab.addEventListener("dragend", function () { dragI = -1; render(); });
+  tab.addEventListener("dragover", function (e) { var w = e.target.closest(".w"); if (w && dragI >= 0) { e.preventDefault(); [].forEach.call(tab.querySelectorAll(".over"), function (o) { o.classList.remove("over"); }); if (+w.dataset.i !== dragI) w.classList.add("over"); } });
+  tab.addEventListener("drop", function (e) {
+    var w = e.target.closest(".w"); if (!w || dragI < 0) return; e.preventDefault();
+    var j = +w.dataset.i, test = layout.slice(), tmp = test[dragI]; test[dragI] = test[j]; test[j] = tmp;
+    if (!fits(test)) { toast("Those two don't swap neatly. Try resizing first."); return; }
+    layout = test; sel = j; render();
+  });
+
+  render();
+})();
+</script>
+<script data-goatcounter="https://homedash.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
